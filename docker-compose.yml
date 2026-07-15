@@ -1,0 +1,17 @@
+# 1단계 사내 머신 배포용 (TDD 8.2)
+# 사용법: .env.local 채운 뒤 `docker compose --env-file .env.local up -d --build`
+#         → http://<사내IP>:3000
+# NEXT_PUBLIC_* 는 브라우저 번들에 인라인되므로 빌드 args로도 전달해야 함
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    restart: unless-stopped
