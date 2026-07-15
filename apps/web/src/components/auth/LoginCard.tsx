@@ -1,13 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ALLOWED_EMAIL_DOMAIN } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import { ALLOWED_EMAIL_DOMAIN } from "@/lib/supabase/middleware";
 import { useState } from "react";
 
 const ERROR_MESSAGES: Record<string, string> = {
   domain_not_allowed: `@${ALLOWED_EMAIL_DOMAIN} 계정으로만 로그인할 수 있어요.`,
   auth_failed: "로그인에 실패했어요. 다시 시도해주세요.",
+  signup_failed: "가입 처리에 실패했어요. 잠시 후 다시 시도해주세요.",
 };
 
 type LoginCardProps = {
@@ -16,18 +17,28 @@ type LoginCardProps = {
 
 export function LoginCard({ errorCode }: LoginCardProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const errorMessage = errorCode ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.auth_failed) : null;
+  const [oauthFailed, setOauthFailed] = useState(false);
+  const activeErrorCode = oauthFailed ? "auth_failed" : errorCode;
+  const errorMessage = activeErrorCode
+    ? (ERROR_MESSAGES[activeErrorCode] ?? ERROR_MESSAGES.auth_failed)
+    : null;
 
   async function handleGoogleLogin() {
     setIsLoading(true);
+    setOauthFailed(false);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: { hd: ALLOWED_EMAIL_DOMAIN },
       },
     });
+    // 성공 시엔 곧 구글로 리디렉트되므로 error일 때만 상태 복구
+    if (error) {
+      setOauthFailed(true);
+      setIsLoading(false);
+    }
   }
 
   return (

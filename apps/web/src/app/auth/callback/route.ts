@@ -1,4 +1,4 @@
-import { ALLOWED_EMAIL_DOMAIN } from "@/lib/supabase/middleware";
+import { ALLOWED_EMAIL_DOMAIN } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
   }
 
   // 첫 로그인 시 Member로 자동 가입 (PRD 3.9)
-  await supabase.from("users").upsert({
+  const { error: upsertError } = await supabase.from("users").upsert({
     id: user.id,
     email: user.email,
     name:
@@ -36,6 +36,12 @@ export async function GET(request: Request) {
       user.email.split("@")[0],
     avatar_url: (user.user_metadata.avatar_url as string | undefined) ?? null,
   });
+
+  if (upsertError) {
+    console.error("users 자동 가입 실패", upsertError);
+    await supabase.auth.signOut();
+    return NextResponse.redirect(`${origin}/login?error=signup_failed`);
+  }
 
   return NextResponse.redirect(`${origin}/`);
 }

@@ -1,8 +1,7 @@
+import { ALLOWED_EMAIL_DOMAIN } from "@/lib/constants";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-
-export const ALLOWED_EMAIL_DOMAIN = "bbodek.com";
 
 const PUBLIC_PATHS = ["/login", "/auth"];
 
