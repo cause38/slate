@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Slate — 와이어프레임 v1.1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --line: #e5e7eb; --line-strong: #d1d5db; --muted: #6b7280; --text: #111827; --bg-card: #ffffff; --bg-app: #f9fafb; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; background: #f3f4f6; color: var(--text); }
+  .wf { background: var(--bg-app); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }
+  .wf-bar { height: 28px; background: #e5e7eb; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-bottom: 1px solid var(--line); }
+  .wf-bar .dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; }
+  .wf-bar .url { flex: 1; height: 16px; background: #fff; border-radius: 8px; margin: 0 12px; font-size: 11px; color: #6b7280; padding: 0 8px; display: flex; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 1; background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+  .pill-blue { background: #eff6ff; color: #1d4ed8; border-color: #dbeafe; }
+  .pill-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .pill-green { background: #ecfdf5; color: #047857; border-color: #d1fae5; }
+  .pill-red { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .pill-violet { background: #f5f3ff; color: #6d28d9; border-color: #ede9fe; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .epic-bar { height: 3px; border-radius: 2px; margin: -10px -12px 8px -12px; }
+  .skel { background: #e5e7eb; border-radius: 4px; height: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line-strong); background: #fff; font-size: 12px; color: #374151; }
+  .btn-primary { background: #111827; color: #fff; border-color: #111827; }
+  .icon { width: 14px; height: 14px; display: inline-block; vertical-align: middle; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; font-size: 13px; color: #374151; }
+  .nav-item.active { background: #111827; color: #fff; }
+  .label-tag { display:inline-block; padding: 1px 6px; border-radius: 3px; font-size:10px; }
+  .ann { color:#6b7280; font-size:12px; }
+  .annot-callout { position: relative; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px; font-size:11px; color:#374151; }
+  .legend > span { display:inline-flex; align-items:center; gap:4px; }
+  .legend .sq { width:10px; height:10px; border-radius:2px; display:inline-block; }
+</style>
+</head>
+<body class="p-10">
+  <header class="max-w-6xl mx-auto mb-10">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-9 h-9 rounded-md bg-gray-900 text-white flex items-center justify-center text-lg">◆</div>
+      <h1 class="text-2xl font-bold">Slate — 와이어프레임</h1>
+      <span class="pill">v1.1</span>
+    </div>
+    <p class="text-gray-600 text-sm">PRD v1.1 화면 구성 8개 + 빠른 생성 모달 + 글로벌 검색 모달. 저충실도(lo-fi) — 색·아이콘은 최소, 레이아웃과 인터랙션 중심.</p>
+    <div class="legend mt-3">
+      <span><span class="sq" style="background:#f3f4f6;border:1px solid #e5e7eb"></span> 일반 영역</span>
+      <span><span class="sq" style="background:#eff6ff;border:1px solid #dbeafe"></span> In Progress</span>
+      <span><span class="sq" style="background:#fffbeb;border:1px solid #fde68a"></span> In Review</span>
+      <span><span class="sq" style="background:#ecfdf5;border:1px solid #d1fae5"></span> Done</span>
+      <span><span class="sq" style="background:#a16207"></span> 에픽 컬러바</span>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto space-y-16">
+
+  <!-- ========================== 1. 로그인 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">1. 로그인</h2>
+    <p class="ann mb-3">단일 행위 화면. Google OAuth 한 번 클릭. <code>@bbodek.com</code> 도메인만 허용.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/login</div></div>
+      <div class="flex items-center justify-center" style="height:520px; background:#fafafa;">
+        <div class="w-[380px] bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm">
+          <div class="w-12 h-12 rounded-md bg-gray-900 text-white mx-auto flex items-center justify-center text-2xl mb-4">◆</div>
+          <div class="text-xl font-semibold mb-1">Slate</div>
+          <div class="text-sm text-gray-500 mb-6">사내 이슈 트래커</div>
+          <button class="btn w-full justify-center" style="padding:10px;border:1px solid #d1d5db;background:#fff;">
+            <span class="icon" style="background:#fff;border-radius:2px;border:1px solid #d1d5db"></span>
+            Continue with Google
+          </button>
+          <div class="text-xs text-gray-400 mt-4">@bbodek.com 도메인만 가입할 수 있어요</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 2. 홈 / 프로젝트 스위처 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">2. 홈 / 프로젝트 스위처</h2>
+    <p class="ann mb-3">로그인 직후 도착. 참여 중인 프로젝트 카드 + 본인 담당 이슈 통합 뷰. Admin은 "+ 새 프로젝트" 카드 노출.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local</div></div>
+      <div class="flex" style="height:560px;">
+        <!-- Sidebar -->
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-2">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <div class="text-[11px] text-gray-400 px-2 mt-2 uppercase tracking-wide">Projects</div>
+          <div class="nav-item active"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</div>
+          <button class="nav-item text-gray-500">+ 새 프로젝트</button>
+        </aside>
+        <!-- Content -->
+        <div class="flex-1 p-6 overflow-auto">
+          <div class="flex items-center justify-between mb-6">
+            <div class="text-xl font-semibold">안녕하세요, 진주 👋</div>
+            <div class="flex items-center gap-2">
+              <div class="card text-xs text-gray-400 w-56">⌘K  검색…</div>
+              <div class="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs">🔔</div>
+              <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+            </div>
+          </div>
+
+          <div class="text-sm font-semibold mb-2">프로젝트</div>
+          <div class="grid grid-cols-3 gap-3 mb-8">
+            <div class="card">
+              <div class="epic-bar" style="background:#a16207"></div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="pill" style="background:#fef3c7;color:#92400e;border-color:#fde68a">DOTOLI</span>
+              </div>
+              <div class="text-sm font-medium mb-1">도토리 프로젝트 (시드)</div>
+              <div class="text-xs text-gray-500">Sprint 24 진행 중 · 8 issues</div>
+            </div>
+            <div class="card border-dashed flex items-center justify-center text-sm text-gray-400" style="border-style:dashed;">+ 새 프로젝트<br><span class="ann">(Admin만)</span></div>
+          </div>
+
+          <div class="text-sm font-semibold mb-2">내 담당 이슈</div>
+          <div class="card divide-y divide-gray-100 p-0">
+            <div class="flex items-center gap-3 px-4 py-3">
+              <span class="pill pill-blue">In Progress</span>
+              <span class="text-xs text-gray-500">DOTOLI-42</span>
+              <span class="text-sm flex-1">로그인 버그 수정 — Google OAuth 콜백 누락</span>
+              <span class="pill">3 pt</span>
+              <span class="text-xs text-gray-500">~ 06/12</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3">
+              <span class="pill pill-amber">In Review</span>
+              <span class="text-xs text-gray-500">DOTOLI-37</span>
+              <span class="text-sm flex-1">스프린트 보드 드래그 정렬 개선</span>
+              <span class="pill">5 pt</span>
+              <span class="text-xs text-gray-500">~ 06/14</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3">
+              <span class="pill">To Do</span>
+              <span class="text-xs text-gray-500">DOTOLI-50</span>
+              <span class="text-sm flex-1">알림 벨 안읽음 카운트 깜빡임</span>
+              <span class="pill">1 pt</span>
+              <span class="text-xs text-gray-400">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 3. 보드 (Kanban) ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">3. 보드 (Kanban)</h2>
+    <p class="ann mb-3">디폴트 화면. Active 스프린트의 4컬럼 칸반. 드래그&드롭 상태 변경, 필터/스윔레인 토글, ⌘K 검색.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/projects/DOTOLI/board</div></div>
+      <div class="flex" style="height:620px;">
+        <!-- Sidebar -->
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item active">▦ 보드</div>
+          <div class="nav-item">≡ 백로그</div>
+          <div class="nav-item">◇ 에픽</div>
+          <div class="nav-item">▤ 리포트</div>
+          <div class="nav-item">⚙ 설정</div>
+        </aside>
+        <!-- Content -->
+        <div class="flex-1 flex flex-col">
+          <!-- Top bar -->
+          <div class="border-b border-gray-200 bg-white px-4 py-3 flex items-center gap-3">
+            <div>
+              <div class="text-sm font-semibold">Sprint 24</div>
+              <div class="text-xs text-gray-500">06/01 - 06/14 · 12 / 25 pt</div>
+            </div>
+            <div class="ml-4 flex items-center gap-2">
+              <button class="btn">전체 ▾</button>
+              <button class="btn">담당자 ▾</button>
+              <button class="btn">에픽 ▾</button>
+              <button class="btn">라벨 ▾</button>
+            </div>
+            <div class="ml-auto flex items-center gap-2">
+              <button class="btn">스윔레인: 없음 ▾</button>
+              <div class="card text-xs text-gray-400" style="padding:6px 10px;">⌘K  검색…</div>
+              <button class="btn btn-primary">＋ 빠른 생성 (C)</button>
+            </div>
+          </div>
+          <!-- Columns -->
+          <div class="flex-1 p-4 overflow-auto bg-gray-50">
+            <div class="grid grid-cols-4 gap-3 h-full">
+              <!-- To Do -->
+              <div class="rounded-lg bg-white border border-gray-200 flex flex-col">
+                <div class="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2"><span class="pill">To Do</span><span class="text-xs text-gray-400">3</span></div>
+                  <button class="text-gray-400 text-sm">＋</button>
+                </div>
+                <div class="p-2 space-y-2 overflow-auto">
+                  <div class="card">
+                    <div class="epic-bar" style="background:#a16207"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-50</div>
+                    <div class="text-sm">알림 벨 안읽음 카운트 깜빡임</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">1 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="epic-bar" style="background:#3b82f6"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-51</div>
+                    <div class="text-sm">에픽 컬러 피커 UX 정리</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">2 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-52</div>
+                    <div class="text-sm">키보드 단축키 안내 모달</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">1 pt</span><span class="pill" style="background:#fef2f2;color:#b91c1c;border-color:#fecaca">bug</span></div>
+                  </div>
+                </div>
+              </div>
+              <!-- In Progress -->
+              <div class="rounded-lg bg-white border border-gray-200 flex flex-col">
+                <div class="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2"><span class="pill pill-blue">In Progress</span><span class="text-xs text-gray-400">2</span></div>
+                  <button class="text-gray-400 text-sm">＋</button>
+                </div>
+                <div class="p-2 space-y-2">
+                  <div class="card">
+                    <div class="epic-bar" style="background:#a16207"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-42</div>
+                    <div class="text-sm">로그인 버그 수정 — Google OAuth 콜백 누락</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">3 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="epic-bar" style="background:#10b981"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-45</div>
+                    <div class="text-sm">스프린트 리포트 벨로시티 차트</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">5 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                </div>
+              </div>
+              <!-- In Review -->
+              <div class="rounded-lg bg-white border border-gray-200 flex flex-col">
+                <div class="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2"><span class="pill pill-amber">In Review</span><span class="text-xs text-gray-400">1</span></div>
+                  <button class="text-gray-400 text-sm">＋</button>
+                </div>
+                <div class="p-2 space-y-2">
+                  <div class="card">
+                    <div class="epic-bar" style="background:#3b82f6"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-37</div>
+                    <div class="text-sm">스프린트 보드 드래그 정렬 개선</div>
+                    <div class="mt-2 flex items-center gap-1 text-[10px] text-gray-500">
+                      <span>🔗 PR #128</span>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">5 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Done -->
+              <div class="rounded-lg bg-white border border-gray-200 flex flex-col">
+                <div class="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                  <div class="flex items-center gap-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-400">3</span></div>
+                </div>
+                <div class="p-2 space-y-2 opacity-75">
+                  <div class="card">
+                    <div class="epic-bar" style="background:#a16207"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-30</div>
+                    <div class="text-sm line-through text-gray-500">초기 시드 스키마 적용</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">2 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-31</div>
+                    <div class="text-sm line-through text-gray-500">Google OAuth 로그인 연결</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">3 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="epic-bar" style="background:#10b981"></div>
+                    <div class="text-[11px] text-gray-500 mb-1">DOTOLI-33</div>
+                    <div class="text-sm line-through text-gray-500">RLS 정책 초기 적용</div>
+                    <div class="mt-2 flex items-center justify-between"><span class="pill">1 pt</span><div class="w-5 h-5 rounded-full bg-gray-200"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 4. 백로그 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">4. 백로그</h2>
+    <p class="ann mb-3">위: Active 스프린트 / 아래: 백로그. 위아래 드래그로 이슈 이동. 빠른 생성용 인라인 입력 상단.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/projects/DOTOLI/backlog</div></div>
+      <div class="flex" style="height:620px;">
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item">▦ 보드</div>
+          <div class="nav-item active">≡ 백로그</div>
+          <div class="nav-item">◇ 에픽</div>
+          <div class="nav-item">▤ 리포트</div>
+          <div class="nav-item">⚙ 설정</div>
+        </aside>
+        <div class="flex-1 flex flex-col bg-gray-50">
+          <!-- Sprint area -->
+          <div class="bg-white border-b border-gray-200">
+            <div class="px-5 py-3 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-semibold">Sprint 24 <span class="pill pill-blue ml-2">Active</span></div>
+                <div class="text-xs text-gray-500">06/01 - 06/14 · 12 / 25 pt · 9 이슈</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn">스프린트 마감</button>
+                <button class="btn">⋯</button>
+              </div>
+            </div>
+            <div class="divide-y divide-gray-100">
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="pill pill-blue">In Progress</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-42</span>
+                <span class="text-sm flex-1">로그인 버그 수정</span>
+                <span class="pill">3 pt</span>
+                <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+              </div>
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="pill pill-amber">In Review</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-37</span>
+                <span class="text-sm flex-1">스프린트 보드 드래그 정렬 개선</span>
+                <span class="pill">5 pt</span>
+                <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+              </div>
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="pill">To Do</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-50</span>
+                <span class="text-sm flex-1">알림 벨 안읽음 카운트 깜빡임</span>
+                <span class="pill">1 pt</span>
+                <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Backlog area -->
+          <div class="flex-1 bg-white">
+            <div class="px-5 py-3 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <div class="text-sm font-semibold">백로그</div>
+                <div class="text-xs text-gray-500">17 이슈 · 39 pt</div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn">필터 ▾</button>
+                <button class="btn btn-primary">＋ 새 스프린트</button>
+              </div>
+            </div>
+            <div class="px-5 py-2 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
+              <span class="text-gray-400 text-sm">＋</span>
+              <input class="flex-1 bg-transparent text-sm outline-none" placeholder="새 이슈 제목을 입력하고 Enter… (예: 보드 카드 그림자 미세 조정)" />
+              <button class="btn">에픽 ▾</button>
+              <button class="btn">타입 ▾</button>
+            </div>
+            <div class="divide-y divide-gray-100">
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-60</span>
+                <span class="text-sm flex-1">슬랙 메시지 포맷 v2</span>
+                <span class="label-tag" style="background:#dbeafe;color:#1d4ed8">backend</span>
+                <span class="pill">3 pt</span>
+              </div>
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-61</span>
+                <span class="text-sm flex-1">에픽 페이지 진행률 차트</span>
+                <span class="label-tag" style="background:#dbeafe;color:#1d4ed8">frontend</span>
+                <span class="pill">2 pt</span>
+              </div>
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-62</span>
+                <span class="text-sm flex-1">PR 머지 시 자동 Done 안정성</span>
+                <span class="label-tag" style="background:#fef2f2;color:#b91c1c">bug</span>
+                <span class="pill">5 pt</span>
+              </div>
+              <div class="flex items-center gap-3 px-5 py-2 hover:bg-gray-50">
+                <span class="text-gray-300 cursor-grab">≡</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-63</span>
+                <span class="text-sm flex-1">Jira 마이그레이션 dry run 리포트</span>
+                <span class="pill">8 pt</span>
+              </div>
+              <div class="px-5 py-3 text-xs text-gray-400 text-center">···</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 5. 이슈 상세 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">5. 이슈 상세</h2>
+    <p class="ann mb-3">좌측: 본문 + 코멘트 + 활동 + GitHub 링크. 우측: 메타 필드 패널. 노션 언펄용 OG는 head SSR (2단계).</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/i/DOTOLI-42</div></div>
+      <div class="flex" style="height:680px;">
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item">▦ 보드</div>
+          <div class="nav-item">≡ 백로그</div>
+          <div class="nav-item">◇ 에픽</div>
+          <div class="nav-item">▤ 리포트</div>
+          <div class="nav-item">⚙ 설정</div>
+        </aside>
+        <div class="flex-1 flex bg-white">
+          <!-- Main -->
+          <div class="flex-1 p-6 overflow-auto">
+            <div class="text-xs text-gray-500 mb-2">DOTOLI / Sprint 24 / 인증 개편</div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="pill pill-blue">In Progress</span>
+              <span class="text-sm text-gray-500">DOTOLI-42</span>
+              <button class="btn ml-auto">상태 변경 ▾</button>
+              <button class="btn">⋯</button>
+            </div>
+            <h3 class="text-2xl font-semibold mb-4">로그인 버그 수정 — Google OAuth 콜백 누락</h3>
+
+            <div class="prose-sm border border-gray-100 rounded-lg p-4 mb-6 text-sm leading-6 bg-gray-50">
+              <div class="font-medium mb-1">설명</div>
+              <p class="text-gray-700">Google OAuth 콜백이 첫 로그인 시 사용자 메타데이터를 가져오지 못해 사용자 레코드 생성에 실패합니다.</p>
+              <ul class="list-disc list-inside text-gray-700 my-2">
+                <li>재현: 새 사용자 첫 로그인</li>
+                <li>예상: <code>users</code> 테이블에 행이 생성됨</li>
+                <li>실제: <code>auth.users</code>만 생성, <code>public.users</code> 누락</li>
+              </ul>
+              <div class="text-gray-500 text-xs">파일 첨부 2개 · 코드블록 1개</div>
+            </div>
+
+            <!-- GitHub Links -->
+            <div class="mb-6">
+              <div class="text-sm font-semibold mb-2">GitHub</div>
+              <div class="card flex items-center gap-3 mb-2">
+                <span>🔗</span>
+                <span class="text-xs text-gray-500 w-14">PR #135</span>
+                <span class="text-sm flex-1">fix(auth): create user row on first oauth callback</span>
+                <span class="pill pill-blue">opened</span>
+              </div>
+              <div class="card flex items-center gap-3">
+                <span>•</span>
+                <span class="text-xs text-gray-500 w-14">commit</span>
+                <span class="text-sm flex-1 text-gray-600">a3f12c · "wip: trigger function for user upsert"</span>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-200 flex gap-4 mb-3 text-sm">
+              <button class="py-2 border-b-2 border-gray-900 font-medium">코멘트 (4)</button>
+              <button class="py-2 text-gray-500">활동 (12)</button>
+            </div>
+
+            <div class="space-y-3 mb-4">
+              <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+                <div class="flex-1">
+                  <div class="text-sm"><span class="font-medium">진주</span> <span class="text-xs text-gray-500 ml-1">2시간 전</span></div>
+                  <div class="card mt-1 text-sm">트리거 함수에서 <code>auth.uid()</code> NULL 케이스 처리 추가했습니다. 리뷰 부탁드려요 @bingo.</div>
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+                <div class="flex-1">
+                  <div class="text-sm"><span class="font-medium">빙고</span> <span class="text-xs text-gray-500 ml-1">1시간 전</span></div>
+                  <div class="card mt-1 text-sm">SECURITY DEFINER 로 박는 게 안전할 것 같네요. PR에 코멘트 남겼어요.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <textarea class="w-full text-sm outline-none resize-none" rows="3" placeholder="코멘트 작성… Markdown 지원, @로 멘션"></textarea>
+              <div class="flex items-center justify-between mt-2">
+                <div class="text-xs text-gray-400">📎 파일 · **굵게** *기울임* `코드`</div>
+                <button class="btn btn-primary">코멘트 등록</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right meta -->
+          <aside class="w-72 border-l border-gray-200 p-5 bg-gray-50 text-sm space-y-3 overflow-auto">
+            <div class="text-xs text-gray-500 uppercase tracking-wide">상세</div>
+
+            <div class="flex justify-between items-center"><div class="text-gray-500">타입</div><span class="pill pill-red">Bug</span></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">담당자</div><div class="flex items-center gap-2"><div class="w-5 h-5 rounded-full bg-gray-300"></div>진주</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">보고자</div><div class="flex items-center gap-2"><div class="w-5 h-5 rounded-full bg-gray-300"></div>빙고</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">에픽</div><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>인증 개편</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">스프린트</div><div>Sprint 24</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">우선순위</div><div>↑ High</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">스토리 포인트</div><div>3</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">마감일</div><div>06/12</div></div>
+
+            <div>
+              <div class="text-gray-500 mb-1">라벨</div>
+              <div class="flex flex-wrap gap-1">
+                <span class="label-tag" style="background:#fef2f2;color:#b91c1c">bug</span>
+                <span class="label-tag" style="background:#dbeafe;color:#1d4ed8">backend</span>
+                <span class="label-tag" style="background:#f3f4f6;color:#6b7280">+</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-gray-500 mb-1">연결된 이슈</div>
+              <div class="text-xs">blocks <span class="text-gray-700">DOTOLI-48</span></div>
+              <div class="text-xs">relates to <span class="text-gray-700">DOTOLI-33</span></div>
+            </div>
+
+            <div>
+              <div class="text-gray-500 mb-1">첨부파일 (2)</div>
+              <div class="text-xs text-gray-600">📎 oauth-callback-trace.log<br>📎 db-snapshot.sql</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 6. 에픽 상세 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">6. 에픽 상세</h2>
+    <p class="ann mb-3">이슈 상세와 동일 구조지만, 본문 아래에 자식 이슈 리스트 + 진행률 표시.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/i/DOTOLI-10</div></div>
+      <div class="flex" style="height:620px;">
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item">▦ 보드</div>
+          <div class="nav-item">≡ 백로그</div>
+          <div class="nav-item active">◇ 에픽</div>
+          <div class="nav-item">▤ 리포트</div>
+          <div class="nav-item">⚙ 설정</div>
+        </aside>
+        <div class="flex-1 flex bg-white">
+          <div class="flex-1 p-6 overflow-auto">
+            <div class="text-xs text-gray-500 mb-2">DOTOLI / 에픽 / DOTOLI-10</div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="pill pill-violet">Epic</span>
+              <span class="text-sm text-gray-500">DOTOLI-10</span>
+              <button class="btn ml-auto">⋯</button>
+            </div>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="w-4 h-4 rounded-sm" style="background:#a16207"></span>
+              <h3 class="text-2xl font-semibold">인증 개편 (Phase 1)</h3>
+            </div>
+            <div class="text-gray-600 text-sm mb-6 leading-6">Google OAuth 기반 사용자 흐름 일원화. 첫 로그인 시 자동 가입 + RLS 정책 정비 + 세션 만료 14일 정책.</div>
+
+            <!-- progress -->
+            <div class="card mb-6">
+              <div class="flex items-center justify-between text-sm mb-2">
+                <div>진행률</div>
+                <div class="text-gray-600">8 / 12 이슈 완료 · 24 / 38 pt</div>
+              </div>
+              <div class="h-2 rounded bg-gray-100 overflow-hidden">
+                <div class="h-full bg-gray-900" style="width:66%"></div>
+              </div>
+              <div class="grid grid-cols-4 gap-2 mt-3 text-xs text-center">
+                <div class="card" style="padding:8px"><div class="text-base font-semibold">2</div><span class="pill mt-1 inline-block">To Do</span></div>
+                <div class="card" style="padding:8px"><div class="text-base font-semibold">1</div><span class="pill pill-blue mt-1 inline-block">In Progress</span></div>
+                <div class="card" style="padding:8px"><div class="text-base font-semibold">1</div><span class="pill pill-amber mt-1 inline-block">In Review</span></div>
+                <div class="card" style="padding:8px"><div class="text-base font-semibold">8</div><span class="pill pill-green mt-1 inline-block">Done</span></div>
+              </div>
+            </div>
+
+            <div class="text-sm font-semibold mb-2">소속 이슈 (12)</div>
+            <div class="card p-0 divide-y divide-gray-100">
+              <div class="flex items-center gap-3 px-4 py-2"><span class="pill pill-blue">In Progress</span><span class="text-xs text-gray-500 w-20">DOTOLI-42</span><span class="text-sm flex-1">로그인 버그 수정</span><span class="pill">3</span></div>
+              <div class="flex items-center gap-3 px-4 py-2"><span class="pill pill-amber">In Review</span><span class="text-xs text-gray-500 w-20">DOTOLI-37</span><span class="text-sm flex-1">스프린트 보드 드래그 정렬</span><span class="pill">5</span></div>
+              <div class="flex items-center gap-3 px-4 py-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500 w-20">DOTOLI-30</span><span class="text-sm flex-1 line-through text-gray-500">초기 시드 스키마</span><span class="pill">2</span></div>
+              <div class="flex items-center gap-3 px-4 py-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500 w-20">DOTOLI-31</span><span class="text-sm flex-1 line-through text-gray-500">Google OAuth 연결</span><span class="pill">3</span></div>
+              <div class="flex items-center gap-3 px-4 py-2"><span class="pill">To Do</span><span class="text-xs text-gray-500 w-20">DOTOLI-58</span><span class="text-sm flex-1">사용자 비활성화 처리</span><span class="pill">2</span></div>
+              <div class="px-4 py-2 text-xs text-gray-400 text-center">+7 더 보기</div>
+            </div>
+          </div>
+          <aside class="w-72 border-l border-gray-200 p-5 bg-gray-50 text-sm space-y-3 overflow-auto">
+            <div class="text-xs text-gray-500 uppercase tracking-wide">에픽 정보</div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">컬러</div><div class="flex items-center gap-2"><span class="w-4 h-4 rounded-sm" style="background:#a16207"></span>brown-700</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">담당자</div><div>진주</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">상태</div><span class="pill pill-blue">In Progress</span></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">시작일</div><div>2026-05-15</div></div>
+            <div class="flex justify-between items-center"><div class="text-gray-500">목표 종료</div><div>2026-07-31</div></div>
+            <div>
+              <div class="text-gray-500 mb-1">라벨</div>
+              <div class="flex flex-wrap gap-1">
+                <span class="label-tag" style="background:#f5f3ff;color:#6d28d9">epic</span>
+                <span class="label-tag" style="background:#dbeafe;color:#1d4ed8">backend</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 7. 스프린트 리포트 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">7. 스프린트 리포트</h2>
+    <p class="ann mb-3">회고 회의용. 계획 vs 실제 + 벨로시티 차트 + 완료/미완료 리스트. "회고 모드" 토글로 큰 글씨 모드.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/projects/DOTOLI/reports/sprint-23</div></div>
+      <div class="flex" style="height:680px;">
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item">▦ 보드</div>
+          <div class="nav-item">≡ 백로그</div>
+          <div class="nav-item">◇ 에픽</div>
+          <div class="nav-item active">▤ 리포트</div>
+          <div class="nav-item">⚙ 설정</div>
+        </aside>
+        <div class="flex-1 p-6 overflow-auto bg-white">
+          <div class="flex items-center justify-between mb-1">
+            <div>
+              <div class="text-xs text-gray-500">완료된 스프린트</div>
+              <div class="flex items-center gap-2 mt-1">
+                <h3 class="text-2xl font-semibold">Sprint 23</h3>
+                <span class="pill pill-green">Completed</span>
+              </div>
+              <div class="text-sm text-gray-500">05/18 - 05/31 · 목표: "Auth + 보드 기본기 완성"</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="btn">스프린트 선택 ▾</button>
+              <button class="btn">회고 모드 (큰 글씨)</button>
+            </div>
+          </div>
+
+          <!-- stat cards -->
+          <div class="grid grid-cols-4 gap-3 mt-5 mb-6">
+            <div class="card"><div class="text-xs text-gray-500">계획 이슈</div><div class="text-2xl font-semibold mt-1">14</div></div>
+            <div class="card"><div class="text-xs text-gray-500">완료 이슈</div><div class="text-2xl font-semibold mt-1">11 <span class="text-xs text-gray-500">/ 14</span></div></div>
+            <div class="card"><div class="text-xs text-gray-500">계획 포인트</div><div class="text-2xl font-semibold mt-1">28</div></div>
+            <div class="card"><div class="text-xs text-gray-500">완료 포인트 (벨로시티)</div><div class="text-2xl font-semibold mt-1">22</div></div>
+          </div>
+
+          <!-- velocity chart (svg bars) -->
+          <div class="card mb-6">
+            <div class="text-sm font-semibold mb-3">최근 5개 스프린트 벨로시티</div>
+            <svg viewBox="0 0 600 180" class="w-full">
+              <g font-size="10" fill="#6b7280">
+                <text x="0" y="14">30</text>
+                <text x="0" y="64">20</text>
+                <text x="0" y="114">10</text>
+                <text x="0" y="164">0</text>
+              </g>
+              <g stroke="#e5e7eb" stroke-dasharray="2 4">
+                <line x1="25" y1="10" x2="600" y2="10" />
+                <line x1="25" y1="60" x2="600" y2="60" />
+                <line x1="25" y1="110" x2="600" y2="110" />
+                <line x1="25" y1="160" x2="600" y2="160" />
+              </g>
+              <g fill="#9ca3af">
+                <rect x="60"  y="100" width="60" height="60" rx="2"/>
+                <rect x="160" y="70"  width="60" height="90" rx="2"/>
+                <rect x="260" y="80"  width="60" height="80" rx="2"/>
+                <rect x="360" y="40"  width="60" height="120" rx="2"/>
+                <rect x="460" y="50"  width="60" height="110" rx="2" fill="#111827"/>
+              </g>
+              <g font-size="10" fill="#6b7280" text-anchor="middle">
+                <text x="90"  y="174">S19 · 12</text>
+                <text x="190" y="174">S20 · 18</text>
+                <text x="290" y="174">S21 · 16</text>
+                <text x="390" y="174">S22 · 24</text>
+                <text x="490" y="174" fill="#111827" font-weight="600">S23 · 22</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- lists -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-sm font-semibold mb-2">완료 (11)</div>
+              <div class="card p-0 divide-y divide-gray-100">
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500">DOTOLI-30</span><span class="flex-1 line-through text-gray-500">초기 시드 스키마</span><span class="pill">2</span></div>
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500">DOTOLI-31</span><span class="flex-1 line-through text-gray-500">Google OAuth 연결</span><span class="pill">3</span></div>
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500">DOTOLI-32</span><span class="flex-1 line-through text-gray-500">사용자 자동 가입</span><span class="pill">2</span></div>
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-green">Done</span><span class="text-xs text-gray-500">DOTOLI-33</span><span class="flex-1 line-through text-gray-500">RLS 정책 적용</span><span class="pill">1</span></div>
+                <div class="px-3 py-2 text-xs text-gray-400 text-center">+7 더 보기</div>
+              </div>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-2">미완료 (3)</div>
+              <div class="card p-0 divide-y divide-gray-100">
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-blue">In Progress</span><span class="text-xs text-gray-500">DOTOLI-42</span><span class="flex-1">로그인 버그 수정</span><span class="ann text-xs">→ S24로 이동</span></div>
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill pill-amber">In Review</span><span class="text-xs text-gray-500">DOTOLI-37</span><span class="flex-1">드래그 정렬 개선</span><span class="ann text-xs">→ S24로 이동</span></div>
+                <div class="px-3 py-2 text-sm flex items-center gap-2"><span class="pill">To Do</span><span class="text-xs text-gray-500">DOTOLI-40</span><span class="flex-1">활동 로그 인덱스</span><span class="ann text-xs">→ 백로그</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 8. 설정 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">8. 설정</h2>
+    <p class="ann mb-3">3개 탭: 워크스페이스(Admin), 프로젝트, 개인 설정. 슬랙 연결·깃헙 리포·Jira 마이그레이션 도구는 워크스페이스에.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/settings/workspace</div></div>
+      <div class="flex" style="height:640px;">
+        <aside class="w-56 border-r border-gray-200 bg-white p-3 flex flex-col gap-1">
+          <div class="flex items-center gap-2 px-2 py-1 mb-1">
+            <div class="w-7 h-7 rounded bg-gray-900 text-white flex items-center justify-center text-sm">◆</div>
+            <div class="text-sm font-semibold">Slate</div>
+          </div>
+          <button class="card text-xs flex items-center justify-between mb-2 mt-1">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#a16207"></span>DOTOLI</span>
+            <span class="text-gray-400">⌄</span>
+          </button>
+          <div class="nav-item">▦ 보드</div>
+          <div class="nav-item">≡ 백로그</div>
+          <div class="nav-item">◇ 에픽</div>
+          <div class="nav-item">▤ 리포트</div>
+          <div class="nav-item active">⚙ 설정</div>
+        </aside>
+        <div class="flex-1 flex bg-white">
+          <aside class="w-56 border-r border-gray-200 p-4 text-sm space-y-1">
+            <div class="text-[11px] text-gray-400 uppercase tracking-wide mb-1">워크스페이스 (Admin)</div>
+            <div class="nav-item active">사용자 관리</div>
+            <div class="nav-item">슬랙 연결</div>
+            <div class="nav-item">Jira 마이그레이션</div>
+            <div class="text-[11px] text-gray-400 uppercase tracking-wide mt-4 mb-1">프로젝트</div>
+            <div class="nav-item">DOTOLI 일반</div>
+            <div class="nav-item">DOTOLI 깃헙 연동</div>
+            <div class="nav-item">DOTOLI 라벨</div>
+            <div class="nav-item">DOTOLI 자동화</div>
+            <div class="text-[11px] text-gray-400 uppercase tracking-wide mt-4 mb-1">개인</div>
+            <div class="nav-item">알림</div>
+            <div class="nav-item">단축키</div>
+          </aside>
+          <div class="flex-1 p-6 overflow-auto">
+            <div class="text-xl font-semibold mb-1">사용자 관리</div>
+            <div class="text-sm text-gray-500 mb-4">@bbodek.com 도메인 가입자 목록. Admin 토글, 비활성화 가능.</div>
+
+            <div class="card p-0 divide-y divide-gray-100">
+              <div class="grid grid-cols-[1fr_180px_120px_120px_50px] items-center px-4 py-2 text-xs uppercase text-gray-500 tracking-wide">
+                <div>이름</div><div>이메일</div><div>역할</div><div>마지막 접속</div><div></div>
+              </div>
+              <div class="grid grid-cols-[1fr_180px_120px_120px_50px] items-center px-4 py-3 text-sm">
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-gray-200"></div>진주</div>
+                <div class="text-gray-600">jj.park@bbodek.com</div>
+                <div><span class="pill pill-violet">Admin</span></div>
+                <div class="text-gray-500">방금</div>
+                <div class="text-gray-400">⋯</div>
+              </div>
+              <div class="grid grid-cols-[1fr_180px_120px_120px_50px] items-center px-4 py-3 text-sm">
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-gray-200"></div>빙고</div>
+                <div class="text-gray-600">bingo@bbodek.com</div>
+                <div><span class="pill">Member</span></div>
+                <div class="text-gray-500">1시간 전</div>
+                <div class="text-gray-400">⋯</div>
+              </div>
+              <div class="grid grid-cols-[1fr_180px_120px_120px_50px] items-center px-4 py-3 text-sm">
+                <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-gray-200"></div>로건</div>
+                <div class="text-gray-600">logan@bbodek.com</div>
+                <div><span class="pill">Member</span></div>
+                <div class="text-gray-500">어제</div>
+                <div class="text-gray-400">⋯</div>
+              </div>
+            </div>
+
+            <div class="text-xl font-semibold mt-8 mb-1">슬랙 연결</div>
+            <div class="text-sm text-gray-500 mb-4">워크스페이스 1개 · 통합 알림 채널 1개. 이슈 변경 = 매번 새 메시지.</div>
+            <div class="card flex items-center gap-3">
+              <div class="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">💬</div>
+              <div class="flex-1">
+                <div class="text-sm font-medium">bbodek.slack.com 연결됨</div>
+                <div class="text-xs text-gray-500">알림 채널: #slate-alerts · 봇 이름: Slate</div>
+              </div>
+              <button class="btn">채널 변경</button>
+              <button class="btn" style="color:#b91c1c">연결 해제</button>
+            </div>
+
+            <div class="text-xl font-semibold mt-8 mb-1">Jira 마이그레이션</div>
+            <div class="text-sm text-gray-500 mb-4">Phase A(테스트) → B(병행) → C(전환) → D(정리). 현재: <span class="pill">Phase B</span></div>
+            <div class="grid grid-cols-3 gap-3">
+              <button class="card text-center"><div class="text-sm font-medium">Dry Run</div><div class="text-xs text-gray-500">대상 이슈 미리보기</div></button>
+              <button class="card text-center"><div class="text-sm font-medium">선택 이관</div><div class="text-xs text-gray-500">JQL로 일부만</div></button>
+              <button class="card text-center"><div class="text-sm font-medium">로그 보기</div><div class="text-xs text-gray-500">최근 마이그레이션 결과</div></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 9. 빠른 생성 모달 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">9. 빠른 이슈 생성 모달 (C 단축키)</h2>
+    <p class="ann mb-3">어디서든 <code>C</code>로 호출. 첫 줄 프로젝트 선택, 그 다음 제목, 그 외는 접힌 옵션.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">slate.bbodek.local/projects/DOTOLI/board (모달)</div></div>
+      <div class="relative" style="height:520px; background:#374151;">
+        <div class="absolute inset-0 opacity-30 bg-gray-50"></div>
+        <div class="absolute inset-0 flex items-start justify-center pt-16">
+          <div class="w-[560px] bg-white border border-gray-200 rounded-xl shadow-xl">
+            <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-2 text-sm">
+              <span class="pill" style="background:#fef3c7;color:#92400e">DOTOLI</span>
+              <span class="text-gray-400">/</span>
+              <span class="text-gray-500">새 이슈</span>
+              <span class="ml-auto text-xs text-gray-400">Esc로 닫기</span>
+            </div>
+            <div class="p-5">
+              <input class="w-full text-base outline-none mb-3" placeholder="제목을 입력하세요…" autofocus />
+              <textarea class="w-full text-sm outline-none border border-gray-100 rounded-md p-2 mb-3 resize-none" rows="3" placeholder="설명 (선택, Markdown 지원)"></textarea>
+              <div class="flex flex-wrap gap-2 text-sm">
+                <button class="btn">타입: Task ▾</button>
+                <button class="btn">에픽: 없음 ▾</button>
+                <button class="btn">담당자: 본인 ▾</button>
+                <button class="btn">우선순위: Medium ▾</button>
+                <button class="btn">포인트: — ▾</button>
+                <button class="btn">라벨 ▾</button>
+              </div>
+            </div>
+            <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+              <div class="text-xs text-gray-400">Enter로 생성 후 닫기 · ⇧Enter로 생성 후 이어 만들기</div>
+              <div class="flex gap-2">
+                <button class="btn">취소</button>
+                <button class="btn btn-primary">이슈 생성</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== 10. 글로벌 검색 ========================== -->
+  <section>
+    <h2 class="text-lg font-semibold mb-1">10. 글로벌 검색 (⌘K)</h2>
+    <p class="ann mb-3">이슈 키·제목·본문·코멘트 전문 검색. 현재 프로젝트 우선, 토글로 전체 확장.</p>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="url">⌘K — 어디서든 호출</div></div>
+      <div class="relative" style="height:520px; background:#374151;">
+        <div class="absolute inset-0 opacity-30 bg-gray-50"></div>
+        <div class="absolute inset-0 flex items-start justify-center pt-16">
+          <div class="w-[620px] bg-white border border-gray-200 rounded-xl shadow-xl">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+              <span class="text-gray-400">🔍</span>
+              <input class="flex-1 outline-none" value="로그인" />
+              <span class="pill">DOTOLI</span>
+              <span class="text-xs text-gray-400">전체 ⇧</span>
+            </div>
+            <div class="max-h-96 overflow-auto">
+              <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-wide text-gray-400">이슈</div>
+              <div class="px-4 py-2 flex items-center gap-2 text-sm bg-gray-50">
+                <span class="pill pill-blue">In Progress</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-42</span>
+                <span class="flex-1"><b>로그인</b> 버그 수정 — Google OAuth 콜백 누락</span>
+                <span class="text-xs text-gray-400">↵</span>
+              </div>
+              <div class="px-4 py-2 flex items-center gap-2 text-sm">
+                <span class="pill pill-green">Done</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-31</span>
+                <span class="flex-1">Google OAuth <b>로그인</b> 연결</span>
+              </div>
+              <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-wide text-gray-400">코멘트</div>
+              <div class="px-4 py-2 text-sm">
+                <div class="text-gray-700">"…<b>로그인</b> 시 콜백에서 빈 응답이 와요…" — 진주, DOTOLI-42</div>
+              </div>
+              <div class="px-4 pt-3 pb-1 text-[11px] uppercase tracking-wide text-gray-400">에픽</div>
+              <div class="px-4 py-2 flex items-center gap-2 text-sm">
+                <span class="pill pill-violet">Epic</span>
+                <span class="text-xs text-gray-500 w-20">DOTOLI-10</span>
+                <span class="flex-1">인증 개편 (Phase 1)</span>
+              </div>
+            </div>
+            <div class="px-4 py-2 border-t border-gray-100 text-xs text-gray-400 flex items-center gap-4">
+              <span>↑↓ 이동</span><span>↵ 선택</span><span>Esc 닫기</span><span class="ml-auto">⇧F 모든 프로젝트 검색</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center text-xs text-gray-500 mt-16 mb-4">
+    Slate Wireframes v1.1 · PRD v1.1 · TDD v1.1 · 진주 + Claude · 2026-06
+  </footer>
+
+  </main>
+</body>
+</html>
