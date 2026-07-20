@@ -1,3 +1,4 @@
+import { QueryProvider } from "@/components/shared/QueryProvider";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
@@ -23,7 +24,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={`${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </body>
     </html>
