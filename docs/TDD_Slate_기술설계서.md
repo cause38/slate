@@ -8,7 +8,7 @@
 | 참조 PRD | `PRD_사내_이슈트래커.md` v1.0 |
 | 작성자 | 진주 (jj.park@bbodek.com) |
 | 작성일 | 2026-06 |
-| 문서 상태 | v1.1 |
+| 문서 상태 | v1.2 |
 | 대상 독자 | 1단계 개발자 (프론트엔드/백엔드 통합 개발) |
 
 ---
@@ -127,7 +127,8 @@ supabase/
 │   ├── 20260601000001_init_schema.sql
 │   ├── 20260601000002_rls_policies.sql
 │   ├── 20260601000003_triggers_and_queues.sql
-│   └── 20260601000004_seed_dotoli.sql
+│   ├── 20260720000001_relax_project_key_length.sql
+│   └── 20260720000002_seed_dotoli.sql
 └── config.toml
 ```
 
@@ -135,7 +136,6 @@ supabase/
 
 ```sql
 -- 확장
-create extension if not exists "uuid-ossp";
 create extension if not exists pgmq cascade;
 
 -- 사용자 (Supabase auth.users 참조)
@@ -151,8 +151,8 @@ create table public.users (
 
 -- 프로젝트
 create table public.projects (
-  id uuid primary key default uuid_generate_v4(),
-  key text not null unique check (key ~ '^[A-Z][A-Z0-9]{1,4}$'),
+  id uuid primary key default gen_random_uuid(),
+  key text not null unique check (key ~ '^[A-Z][A-Z0-9]{1,9}$'),
   name text not null,
   color text not null default '#6366f1',
   icon text,
@@ -170,7 +170,7 @@ create index idx_projects_active on projects(is_archived) where is_archived = fa
 
 -- 프로젝트 ↔ GitHub 리포 (다대다)
 create table public.project_github_repos (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   repo_full_name text not null,  -- "bbodek/slate"
   installation_id bigint,
@@ -180,7 +180,7 @@ create table public.project_github_repos (
 
 -- 스프린트
 create table public.sprints (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   name text not null,
   start_date date not null,
@@ -199,7 +199,7 @@ create unique index idx_sprints_one_active
 
 -- 이슈
 create table public.issues (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id),
   key text not null,  -- "DOTOLI-42"
   title text not null,
@@ -229,7 +229,7 @@ create index idx_issues_search on issues using gin(to_tsvector('simple', title |
 
 -- 라벨
 create table public.labels (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   name text not null,
   color text not null default '#94a3b8',
@@ -244,7 +244,7 @@ create table public.issue_labels (
 
 -- 이슈 간 연결
 create table public.issue_links (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   source_issue_id uuid not null references issues(id) on delete cascade,
   target_issue_id uuid not null references issues(id) on delete cascade,
   link_type text not null check (link_type in ('relates', 'blocks', 'blocked_by', 'duplicates')),
@@ -255,7 +255,7 @@ create table public.issue_links (
 
 -- 코멘트
 create table public.comments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   author_id uuid not null references users(id),
   body_markdown text not null,
@@ -267,7 +267,7 @@ create index idx_comments_issue on comments(issue_id, created_at);
 
 -- 첨부파일 (S3에 실제 파일)
 create table public.attachments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   uploader_id uuid not null references users(id),
   filename text not null,
@@ -293,7 +293,7 @@ create index idx_activity_issue on activity_logs(issue_id, created_at desc);
 
 -- GitHub 링크 (커밋/PR)
 create table public.github_links (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   kind text not null check (kind in ('commit', 'pr')),
   external_id text not null,  -- PR 번호 또는 commit SHA
@@ -322,7 +322,7 @@ create index idx_notifications_user_unread on notifications(user_id, created_at 
 
 -- Slack 워크스페이스
 create table public.slack_workspaces (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   team_id text not null unique,
   team_name text not null,
   bot_token text not null,  -- Supabase Vault로 암호화 (애플리케이션 레이어)
@@ -575,7 +575,7 @@ supabase/functions/
 import { serve } from "https://deno.land/std@0.220.0/http/server.ts";
 import { createServiceClient } from "../_shared/supabase.ts";
 
-const ISSUE_KEY_RE = /\b([A-Z][A-Z0-9]{1,4})-(\d+)\b/g;
+const ISSUE_KEY_RE = /\b([A-Z][A-Z0-9]{1,9})-(\d+)\b/g;
 
 serve(async (req) => {
   // 1. GitHub 서명 검증
@@ -1181,3 +1181,4 @@ supabase functions serve         # Edge Function 로컬 실행
 |---|---|---|
 | 1.0 | 2026-06 | PRD v1.0 기반 초안 작성 (도구 이름 Tick) |
 | 1.1 | 2026-06 | 도구 이름 **Tick → Slate** 일괄 치환. S3 키 prefix, 슬랙 채널명, 깃 리포 경로, 도메인 예시도 함께 갱신. 스택/스키마/Edge Function 로직은 동일. |
+| 1.2 | 2026-07 | 프로젝트 키 제약 **2~5자 → 2~10자** 완화 (시드 DOTOLI 6자 충돌 해소, 사용자 확정). `uuid_generate_v4()` → `gen_random_uuid()` 교체 (Supabase가 확장을 `extensions` 스키마에 설치해 마이그레이션에서 미해석). 마이그레이션 5개 파일로 갱신 (제약 완화 + 시드 순서 조정). |

@@ -1,7 +1,6 @@
 -- Slate 초기 스키마 (TDD 3.2)
 
 -- 확장
-create extension if not exists "uuid-ossp";
 create extension if not exists pgmq cascade;
 
 -- 사용자 (Supabase auth.users 참조)
@@ -17,7 +16,7 @@ create table public.users (
 
 -- 프로젝트
 create table public.projects (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   key text not null unique check (key ~ '^[A-Z][A-Z0-9]{1,4}$'),
   name text not null,
   color text not null default '#6366f1',
@@ -36,7 +35,7 @@ create index idx_projects_active on projects(is_archived) where is_archived = fa
 
 -- 프로젝트 ↔ GitHub 리포 (다대다)
 create table public.project_github_repos (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   repo_full_name text not null,  -- "bbodek/slate"
   installation_id bigint,
@@ -46,7 +45,7 @@ create table public.project_github_repos (
 
 -- 스프린트
 create table public.sprints (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   name text not null,
   start_date date not null,
@@ -65,7 +64,7 @@ create unique index idx_sprints_one_active
 
 -- 이슈
 create table public.issues (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id),
   key text not null,  -- "DOTOLI-42"
   title text not null,
@@ -95,7 +94,7 @@ create index idx_issues_search on issues using gin(to_tsvector('simple', title |
 
 -- 라벨
 create table public.labels (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   project_id uuid not null references projects(id) on delete cascade,
   name text not null,
   color text not null default '#94a3b8',
@@ -110,7 +109,7 @@ create table public.issue_labels (
 
 -- 이슈 간 연결
 create table public.issue_links (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   source_issue_id uuid not null references issues(id) on delete cascade,
   target_issue_id uuid not null references issues(id) on delete cascade,
   link_type text not null check (link_type in ('relates', 'blocks', 'blocked_by', 'duplicates')),
@@ -121,7 +120,7 @@ create table public.issue_links (
 
 -- 코멘트
 create table public.comments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   author_id uuid not null references users(id),
   body_markdown text not null,
@@ -133,7 +132,7 @@ create index idx_comments_issue on comments(issue_id, created_at);
 
 -- 첨부파일 (S3에 실제 파일)
 create table public.attachments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   uploader_id uuid not null references users(id),
   filename text not null,
@@ -159,7 +158,7 @@ create index idx_activity_issue on activity_logs(issue_id, created_at desc);
 
 -- GitHub 링크 (커밋/PR)
 create table public.github_links (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references issues(id) on delete cascade,
   kind text not null check (kind in ('commit', 'pr')),
   external_id text not null,  -- PR 번호 또는 commit SHA
@@ -188,7 +187,7 @@ create index idx_notifications_user_unread on notifications(user_id, created_at 
 
 -- Slack 워크스페이스
 create table public.slack_workspaces (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   team_id text not null unique,
   team_name text not null,
   bot_token text not null,  -- Supabase Vault로 암호화 (애플리케이션 레이어)
