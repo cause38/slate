@@ -8,7 +8,7 @@
 | 참조 PRD | `PRD_사내_이슈트래커.md` v1.0 |
 | 작성자 | 진주 (jj.park@bbodek.com) |
 | 작성일 | 2026-06 |
-| 문서 상태 | v1.2 |
+| 문서 상태 | v1.3 |
 | 대상 독자 | 1단계 개발자 (프론트엔드/백엔드 통합 개발) |
 
 ---
@@ -128,7 +128,9 @@ supabase/
 │   ├── 20260601000002_rls_policies.sql
 │   ├── 20260601000003_triggers_and_queues.sql
 │   ├── 20260720000001_relax_project_key_length.sql
-│   └── 20260720000002_seed_dotoli.sql
+│   ├── 20260720000002_seed_dotoli.sql
+│   ├── 20260720000003_security_hardening.sql
+│   └── 20260720000004_fix_issue_key_assignment_rls.sql
 └── config.toml
 ```
 
@@ -359,12 +361,24 @@ create table public.jira_migration_logs (
 select pgmq.create('slack_notify_queue');
 
 -- 이슈 키 자동 발급 함수
+-- 트리거는 항상 실행 — 클라이언트가 key를 직접 넣어 카운터를 우회할 수 없음.
+-- 단, service_role 요청(Jira 마이그레이션)·직접 DB 연결(시드)은 명시 키 보존 (PRD 4.4).
+-- security definer: member의 insert에서도 projects.issue_counter 증가가
+-- RLS(projects_admin_write)에 막히지 않도록 함. 판별은 auth.role() 기준.
 create or replace function fn_assign_issue_key()
-returns trigger as $$
+returns trigger
+security definer
+set search_path = public
+as $$
 declare
   v_project_key text;
   v_next int;
+  v_api_role text := coalesce(auth.role(), 'direct');
 begin
+  if new.key is not null and new.key <> '' and v_api_role in ('service_role', 'direct') then
+    return new;
+  end if;
+
   select key into v_project_key from projects where id = new.project_id;
   -- 카운터 atomic 증가
   update projects
@@ -379,12 +393,13 @@ $$ language plpgsql;
 create trigger trg_issues_assign_key
   before insert on issues
   for each row
-  when (new.key is null or new.key = '')
   execute function fn_assign_issue_key();
 
 -- updated_at 자동 갱신
 create or replace function fn_touch_updated_at()
-returns trigger as $$
+returns trigger
+set search_path = public
+as $$
 begin
   new.updated_at := now();
   return new;
@@ -398,7 +413,9 @@ create trigger trg_issues_touch
 
 -- 변경 → 활동 로그 + Slack 큐
 create or replace function fn_issue_change_log()
-returns trigger as $$
+returns trigger
+set search_path = public
+as $$
 declare
   v_actor uuid := auth.uid();
   v_event text;
@@ -484,7 +501,9 @@ create policy "users_read_others" on users
 
 -- Helper: 현재 사용자가 admin인지
 create or replace function is_admin()
-returns boolean as $$
+returns boolean
+set search_path = public
+as $$
   select role = 'admin' from users where id = auth.uid();
 $$ language sql stable security definer;
 
@@ -1182,3 +1201,4 @@ supabase functions serve         # Edge Function 로컬 실행
 | 1.0 | 2026-06 | PRD v1.0 기반 초안 작성 (도구 이름 Tick) |
 | 1.1 | 2026-06 | 도구 이름 **Tick → Slate** 일괄 치환. S3 키 prefix, 슬랙 채널명, 깃 리포 경로, 도메인 예시도 함께 갱신. 스택/스키마/Edge Function 로직은 동일. |
 | 1.2 | 2026-07 | 프로젝트 키 제약 **2~5자 → 2~10자** 완화 (시드 DOTOLI 6자 충돌 해소, 사용자 확정). `uuid_generate_v4()` → `gen_random_uuid()` 교체 (Supabase가 확장을 `extensions` 스키마에 설치해 마이그레이션에서 미해석). 마이그레이션 5개 파일로 갱신 (제약 완화 + 시드 순서 조정). |
+| 1.3 | 2026-07 | DB 보안 결정 2건 반영 (사용자 확정): ① DB 함수 4종에 `set search_path = public` 고정 (하이재킹 방지) ② 이슈 키 트리거 WHEN 조건 제거 — 클라이언트의 키 카운터 우회 차단, 단 `service_role` 요청·직접 DB 연결은 명시 키 보존 (PRD 4.4 지라 키 이관 유지). 검증 중 잠복 버그 발견·수정: 키 발급 함수가 호출자 권한으로 실행돼 member의 이슈 생성 시 카운터 증가가 RLS에 막힘 → `security definer` + `auth.role()` 판별로 변경. 마이그레이션 2개 추가 (`...003_security_hardening`, `...004_fix_issue_key_assignment_rls`). 실동작 검증: member 정상 생성 `DOTOLI-1` 발급 ✓, 명시 키(`HACK-999`) 우회 시도 강제 재발급 ✓. |
