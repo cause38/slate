@@ -1,5 +1,6 @@
 import { QueryProvider } from "@/components/shared/QueryProvider";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
@@ -24,7 +25,10 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={`${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            {children}
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

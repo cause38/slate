@@ -1,3 +1,4 @@
+import { QuickCreateModal } from "@/components/shared/QuickCreateModal";
 import { Sidebar } from "@/components/shared/Sidebar";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
@@ -24,6 +25,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
     <div className="flex min-h-screen">
       <Sidebar projects={projects ?? []} currentProjectKey={projectKey} />
       <div className="flex min-w-0 flex-1 flex-col">{children}</div>
+      <QuickCreateModal />
     </div>
   );
 }

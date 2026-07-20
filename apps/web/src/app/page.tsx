@@ -1,5 +1,7 @@
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { StatusPill } from "@/components/issue/StatusPill";
+import { QuickCreateButton } from "@/components/shared/QuickCreateButton";
+import { QuickCreateModal } from "@/components/shared/QuickCreateModal";
 import { Sidebar } from "@/components/shared/Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +39,7 @@ export default async function HomePage() {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-xl font-semibold">안녕하세요, {displayName} 👋</h1>
           <div className="flex items-center gap-2">
+            <QuickCreateButton />
             <SignOutButton />
             <Avatar className="h-8 w-8">
               <AvatarImage
@@ -107,6 +110,7 @@ export default async function HomePage() {
           )}
         </section>
       </main>
+      <QuickCreateModal />
     </div>
   );
 }
