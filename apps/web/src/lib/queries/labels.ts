@@ -9,17 +9,8 @@ export type Label = Tables<"labels">;
 
 export type LabelWithUsage = Label & { issueCount: number };
 
-// 디자인 핸드오프 3.2 — 에픽/라벨용 8색 팔레트 프리셋
-export const LABEL_COLOR_PRESETS = [
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#10b981",
-  "#3b82f6",
-  "#6366f1",
-  "#a855f7",
-  "#64748b",
-] as const;
+// 공용 색 팔레트 재노출 (기존 소비처 호환)
+export { COLOR_PRESETS as LABEL_COLOR_PRESETS } from "@/lib/constants";
 
 export const labelKeys = {
   all: ["labels"] as const,

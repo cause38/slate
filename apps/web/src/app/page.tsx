@@ -1,5 +1,6 @@
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { StatusPill } from "@/components/issue/StatusPill";
+import { CreateProjectDialog } from "@/components/shared/CreateProjectDialog";
 import { QuickCreateButton } from "@/components/shared/QuickCreateButton";
 import { QuickCreateModal } from "@/components/shared/QuickCreateModal";
 import { Sidebar } from "@/components/shared/Sidebar";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import type { IssueStatus } from "@/lib/constants";
 import { formatShortDate } from "@/lib/date";
 import { fetchMyIssues } from "@/lib/queries/issues-shared";
+import { isCurrentUserAdmin } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
@@ -17,13 +19,14 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: projects, error: projectsError }, myIssues] = await Promise.all([
+  const [{ data: projects, error: projectsError }, myIssues, isAdmin] = await Promise.all([
     supabase
       .from("projects")
       .select("id, key, name, color, issues(count)")
       .eq("is_archived", false)
       .order("created_at"),
     user ? fetchMyIssues(supabase, user.id) : [],
+    isCurrentUserAdmin(supabase),
   ]);
   if (projectsError) throw projectsError;
 
@@ -71,9 +74,7 @@ export default async function HomePage() {
                 </div>
               </Link>
             ))}
-            <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-              + 새 프로젝트 (W2-5)
-            </div>
+            {isAdmin && <CreateProjectDialog />}
           </div>
         </section>
 

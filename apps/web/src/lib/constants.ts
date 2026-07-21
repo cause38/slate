@@ -35,6 +35,18 @@ export const ISSUE_PRIORITY_LABELS: Record<IssuePriority, string> = {
 
 export const STORY_POINT_OPTIONS = [0, 1, 2, 3, 5, 8, 13] as const;
 
+// 디자인 핸드오프 3.2 — 라벨·프로젝트·에픽 등 사용자 지정 색 8색 팔레트
+export const COLOR_PRESETS = [
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#10b981",
+  "#3b82f6",
+  "#6366f1",
+  "#a855f7",
+  "#64748b",
+] as const;
+
 export function isIssueStatus(value: string): value is IssueStatus {
   return (ISSUE_STATUSES as readonly string[]).includes(value);
 }
