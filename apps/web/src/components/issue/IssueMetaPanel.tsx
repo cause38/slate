@@ -1,5 +1,6 @@
 "use client";
 
+import { LabelPicker } from "@/components/issue/LabelPicker";
 import { MetaRow } from "@/components/issue/MetaRow";
 import { PriorityLabel } from "@/components/issue/PriorityLabel";
 import { StatusPill } from "@/components/issue/StatusPill";
@@ -207,6 +208,18 @@ export function IssueMetaPanel({ issue }: IssueMetaPanelProps) {
             {issue.epic.title}
           </Link>
         </MetaRow>
+      )}
+
+      {issue.project && (
+        <div className="space-y-1.5 pt-1">
+          <div className="text-muted-foreground">라벨</div>
+          <LabelPicker
+            issueId={issue.id}
+            issueKey={issue.key}
+            projectId={issue.project.id}
+            attached={issue.labels}
+          />
+        </div>
       )}
     </aside>
   );
