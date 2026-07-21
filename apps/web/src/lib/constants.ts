@@ -34,3 +34,15 @@ export const ISSUE_PRIORITY_LABELS: Record<IssuePriority, string> = {
 };
 
 export const STORY_POINT_OPTIONS = [0, 1, 2, 3, 5, 8, 13] as const;
+
+export function isIssueStatus(value: string): value is IssueStatus {
+  return (ISSUE_STATUSES as readonly string[]).includes(value);
+}
+
+export function isIssueType(value: string): value is IssueType {
+  return (ISSUE_TYPES as readonly string[]).includes(value);
+}
+
+export function isIssuePriority(value: string): value is IssuePriority {
+  return (ISSUE_PRIORITIES as readonly string[]).includes(value);
+}
