@@ -90,3 +90,36 @@ export function useUpdateIssueStatus(projectId: string) {
     },
   });
 }
+
+/** 백로그 드래그용 스프린트 이동 — sprint_id 변경 (null = 백로그). 낙관적 */
+export function useUpdateIssueSprint(projectId: string) {
+  const queryClient = useQueryClient();
+  const queryKey = boardIssueKeys.byProject(projectId);
+
+  return useMutation({
+    mutationFn: async (input: { issueId: string; sprintId: string | null }): Promise<void> => {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("issues")
+        .update({ sprint_id: input.sprintId })
+        .eq("id", input.issueId);
+      if (error) throw error;
+    },
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<BoardIssue[]>(queryKey);
+      queryClient.setQueryData<BoardIssue[]>(queryKey, (old) =>
+        old?.map((issue) =>
+          issue.id === input.issueId ? { ...issue, sprint_id: input.sprintId } : issue,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: issueKeys.all });
+    },
+  });
+}
