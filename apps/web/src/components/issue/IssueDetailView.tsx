@@ -1,9 +1,12 @@
 "use client";
 
+import { CommentSection } from "@/components/issue/CommentSection";
 import { DeleteIssueButton } from "@/components/issue/DeleteIssueButton";
 import { IssueMetaPanel } from "@/components/issue/IssueMetaPanel";
 import { MarkdownBody } from "@/components/issue/MarkdownBody";
 import { StatusPill } from "@/components/issue/StatusPill";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useComments } from "@/lib/queries/comments";
 import { useIssueDetail } from "@/lib/queries/issue-detail";
 
 type IssueDetailViewProps = {
@@ -12,6 +15,8 @@ type IssueDetailViewProps = {
 
 export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
   const { data: issue, isPending, isError } = useIssueDetail(issueKey);
+  // issue 로드 전엔 undefined → useComments가 disabled (조건부 호출 아님)
+  const { data: comments } = useComments(issue?.id);
 
   if (isPending) {
     return (
@@ -45,10 +50,25 @@ export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
         </div>
         <h1 className="mb-6 text-2xl font-semibold">{issue.title}</h1>
 
-        <section className="rounded-lg border bg-card p-4">
+        <section className="mb-6 rounded-lg border bg-card p-4">
           <div className="mb-2 text-sm font-medium">설명</div>
           <MarkdownBody content={issue.body_markdown} />
         </section>
+
+        <Tabs defaultValue="comments">
+          <TabsList>
+            <TabsTrigger value="comments">코멘트 ({comments?.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="activity">활동</TabsTrigger>
+          </TabsList>
+          <TabsContent value="comments" className="mt-4">
+            <CommentSection issueId={issue.id} />
+          </TabsContent>
+          <TabsContent value="activity" className="mt-4">
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              활동 로그는 W4-2에서 구현됩니다
+            </p>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <IssueMetaPanel issue={issue} />
