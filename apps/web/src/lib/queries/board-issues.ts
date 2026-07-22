@@ -4,7 +4,7 @@ import type { IssuePriority, IssueStatus, IssueType } from "@/lib/constants";
 import { issueKeys } from "@/lib/queries/issues";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Assignee = Pick<Tables<"users">, "id" | "name" | "avatar_url">;
 type IssueLabelLite = Pick<Tables<"labels">, "id" | "name" | "color">;
@@ -54,6 +54,39 @@ export function useProjectIssues(projectId: string | undefined) {
         ...row,
         labels: row.labels.map((l) => l.label).filter((l): l is IssueLabelLite => l !== null),
       }));
+    },
+  });
+}
+
+/** 보드 드래그용 상태 변경 — 낙관적 업데이트로 카드가 즉시 컬럼 이동 */
+export function useUpdateIssueStatus(projectId: string) {
+  const queryClient = useQueryClient();
+  const queryKey = boardIssueKeys.byProject(projectId);
+
+  return useMutation({
+    mutationFn: async (input: { issueId: string; status: IssueStatus }): Promise<void> => {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("issues")
+        .update({ status: input.status })
+        .eq("id", input.issueId);
+      if (error) throw error;
+    },
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<BoardIssue[]>(queryKey);
+      queryClient.setQueryData<BoardIssue[]>(queryKey, (old) =>
+        old?.map((issue) =>
+          issue.id === input.issueId ? { ...issue, status: input.status } : issue,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: issueKeys.all });
     },
   });
 }
