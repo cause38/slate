@@ -2,12 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { ISSUE_STATUS_LABELS, type IssueStatus } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-// 디자인 핸드오프 3.2 의미 컬러 — 상태 식별용 10%
+// 상태 의미 색은 globals.css의 --status-* 시맨틱 토큰으로 (라이트/다크 대응)
 const STATUS_CLASSES: Record<IssueStatus, string> = {
-  todo: "bg-muted text-muted-foreground border-border",
-  in_progress: "bg-blue-500/15 text-blue-500 border-blue-500/25",
-  in_review: "bg-amber-500/15 text-amber-500 border-amber-500/25",
-  done: "bg-emerald-500/15 text-emerald-500 border-emerald-500/25",
+  todo: "bg-status-todo/15 text-status-todo border-status-todo/25",
+  in_progress: "bg-status-in-progress/15 text-status-in-progress border-status-in-progress/25",
+  in_review: "bg-status-in-review/15 text-status-in-review border-status-in-review/25",
+  done: "bg-status-done/15 text-status-done border-status-done/25",
 };
 
 type StatusPillProps = {

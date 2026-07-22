@@ -708,6 +708,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_sprint: {
+        Args: { p_carry_over: string; p_sprint_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {

@@ -11,3 +11,14 @@ export function formatDateColumn(date: Date) {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+export function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+/** "2026-06-01" + "2026-06-14" → "06/01 - 06/14" */
+export function formatDateRange(startIso: string, endIso: string) {
+  return `${formatShortDate(startIso)} - ${formatShortDate(endIso)}`;
+}
