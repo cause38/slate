@@ -25,11 +25,6 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -52,7 +47,7 @@ export function BacklogView({ projectId }: BacklogViewProps) {
   const [activeIssue, setActiveIssue] = useState<BoardIssue | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor),
   );
 
   const activeSprint = sprints?.find((s) => s.status === "active") ?? null;
@@ -142,18 +137,13 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                 </Button>
               </div>
               <div className="min-h-12 divide-y">
-                <SortableContext
-                  items={activeIssues.map((i) => i.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {activeIssues.length ? (
-                    activeIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
-                  ) : (
-                    <div className="px-5 py-6 text-center text-xs text-muted-foreground">
-                      백로그 이슈를 여기로 드래그해 스프린트를 채워요
-                    </div>
-                  )}
-                </SortableContext>
+                {activeIssues.length ? (
+                  activeIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
+                ) : (
+                  <div className="px-5 py-6 text-center text-xs text-muted-foreground">
+                    백로그 이슈를 여기로 드래그해 스프린트를 채워요
+                  </div>
+                )}
               </div>
             </section>
           </DroppableZone>
@@ -190,14 +180,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                 </div>
                 {sprintIssues.length > 0 && (
                   <div className="divide-y">
-                    <SortableContext
-                      items={sprintIssues.map((i) => i.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {sprintIssues.map((issue) => (
-                        <DraggableIssueRow key={issue.id} issue={issue} />
-                      ))}
-                    </SortableContext>
+                    {sprintIssues.map((issue) => (
+                      <DraggableIssueRow key={issue.id} issue={issue} />
+                    ))}
                   </div>
                 )}
               </section>
@@ -219,18 +204,13 @@ export function BacklogView({ projectId }: BacklogViewProps) {
             </div>
             <InlineCreateIssue projectId={projectId} />
             <div className="divide-y">
-              <SortableContext
-                items={backlogIssues.map((i) => i.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {backlogIssues.length ? (
-                  backlogIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
-                ) : (
-                  <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-                    백로그가 비어 있어요. 위 입력창이나 C로 이슈를 만들어보세요.
-                  </div>
-                )}
-              </SortableContext>
+              {backlogIssues.length ? (
+                backlogIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
+              ) : (
+                <div className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  백로그가 비어 있어요. 위 입력창이나 C로 이슈를 만들어보세요.
+                </div>
+              )}
             </div>
           </section>
         </DroppableZone>
