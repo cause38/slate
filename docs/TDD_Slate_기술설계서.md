@@ -8,7 +8,7 @@
 | 참조 PRD | `PRD_사내_이슈트래커.md` v1.0 |
 | 작성자 | 진주 (jj.park@bbodek.com) |
 | 작성일 | 2026-06 |
-| 문서 상태 | v1.3 |
+| 문서 상태 | v1.5 |
 | 대상 독자 | 1단계 개발자 (프론트엔드/백엔드 통합 개발) |
 
 ---
@@ -130,8 +130,13 @@ supabase/
 │   ├── 20260720000001_relax_project_key_length.sql
 │   ├── 20260720000002_seed_dotoli.sql
 │   ├── 20260720000003_security_hardening.sql
-│   └── 20260720000004_fix_issue_key_assignment_rls.sql
+│   ├── 20260720000004_fix_issue_key_assignment_rls.sql
+│   ├── 20260721000001_bootstrap_first_admin.sql
+│   ├── 20260722000001_user_admin_and_archive_guards.sql
+│   └── 20260722000002_guard_last_admin.sql
 └── config.toml
+
+> **아카이브 강제 범위 결정**: `fn_block_archived_project_issues`는 아카이브 프로젝트의 이슈 `insert`/`update`만 막고 `delete`는 허용한다. 이유: `projects` 삭제 시 `issues`가 `on delete cascade`로 지워지는데, delete까지 막으면 아카이브된 프로젝트를 영영 삭제할 수 없게 된다(PRD 3.10 "프로젝트 삭제" 흐름 보존). 개별 이슈 정리 삭제도 허용.
 ```
 
 ### 3.2 초기 스키마 (`init_schema.sql`)
@@ -1202,3 +1207,5 @@ supabase functions serve         # Edge Function 로컬 실행
 | 1.1 | 2026-06 | 도구 이름 **Tick → Slate** 일괄 치환. S3 키 prefix, 슬랙 채널명, 깃 리포 경로, 도메인 예시도 함께 갱신. 스택/스키마/Edge Function 로직은 동일. |
 | 1.2 | 2026-07 | 프로젝트 키 제약 **2~5자 → 2~10자** 완화 (시드 DOTOLI 6자 충돌 해소, 사용자 확정). `uuid_generate_v4()` → `gen_random_uuid()` 교체 (Supabase가 확장을 `extensions` 스키마에 설치해 마이그레이션에서 미해석). 마이그레이션 5개 파일로 갱신 (제약 완화 + 시드 순서 조정). |
 | 1.3 | 2026-07 | DB 보안 결정 2건 반영 (사용자 확정): ① DB 함수 4종에 `set search_path = public` 고정 (하이재킹 방지) ② 이슈 키 트리거 WHEN 조건 제거 — 클라이언트의 키 카운터 우회 차단, 단 `service_role` 요청·직접 DB 연결은 명시 키 보존 (PRD 4.4 지라 키 이관 유지). 검증 중 잠복 버그 발견·수정: 키 발급 함수가 호출자 권한으로 실행돼 member의 이슈 생성 시 카운터 증가가 RLS에 막힘 → `security definer` + `auth.role()` 판별로 변경. 마이그레이션 2개 추가 (`...003_security_hardening`, `...004_fix_issue_key_assignment_rls`). 실동작 검증: member 정상 생성 `DOTOLI-1` 발급 ✓, 명시 키(`HACK-999`) 우회 시도 강제 재발급 ✓. |
+| 1.4 | 2026-07 | W2 개발 중 DB 보강 2건. ① **첫 admin 부트스트랩** (`...20260721000001`): admin이 0명이면 최초 가입자를 1회 승격(멱등). ② **W2-6 보안 2건** (`...20260722000001`): 권한 상승 방지 트리거(member가 자기 role/is_active 변경 불가, admin만 허용) + 아카이브 강제 트리거(is_archived 프로젝트에 이슈 insert/update 거부, delete는 허용). PRD v1.4와 연동. |
+| 1.5 | 2026-07 | W2-6 리뷰 반영: **마지막 활성 admin 보호** (`...20260722000002`) — admin이 직접 REST로 자기 자신/마지막 admin을 강등·비활성화해 워크스페이스가 잠기는 것을 트리거로 차단. UI 가드와 DB 가드 대칭 완성. 아카이브 강제의 delete 허용 결정도 명문화. |

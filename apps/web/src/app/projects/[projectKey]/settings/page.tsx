@@ -2,6 +2,7 @@ import { LabelManager } from "@/components/settings/LabelManager";
 import { ProjectGeneralForm } from "@/components/settings/ProjectGeneralForm";
 import { isCurrentUserAdmin } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 type ProjectSettingsPageProps = {
@@ -26,8 +27,20 @@ export default async function ProjectSettingsPage({ params }: ProjectSettingsPag
   return (
     <main className="flex-1 overflow-auto p-6">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-xl font-semibold">{project.name} 설정</h1>
-        <p className="mb-6 text-sm text-muted-foreground">프로젝트 일반 설정과 라벨을 관리해요.</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">{project.name} 설정</h1>
+            <p className="text-sm text-muted-foreground">프로젝트 일반 설정과 라벨을 관리해요.</p>
+          </div>
+          {isAdmin && (
+            <Link
+              href="/settings/workspace"
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
+              워크스페이스 설정 →
+            </Link>
+          )}
+        </div>
 
         {isAdmin && (
           <section className="mb-8">
