@@ -1,5 +1,6 @@
 "use client";
 
+import { ActivityLog } from "@/components/issue/ActivityLog";
 import { CommentSection } from "@/components/issue/CommentSection";
 import { DeleteIssueButton } from "@/components/issue/DeleteIssueButton";
 import { IssueMetaPanel } from "@/components/issue/IssueMetaPanel";
@@ -64,9 +65,7 @@ export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
             <CommentSection issueId={issue.id} />
           </TabsContent>
           <TabsContent value="activity" className="mt-4">
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              활동 로그는 W4-2에서 구현됩니다
-            </p>
+            <ActivityLog issueId={issue.id} projectId={issue.project?.id} />
           </TabsContent>
         </Tabs>
       </div>
