@@ -1,6 +1,7 @@
 "use client";
 
 import { ActivityLog } from "@/components/issue/ActivityLog";
+import { AttachmentSection } from "@/components/issue/AttachmentSection";
 import { CommentSection } from "@/components/issue/CommentSection";
 import { DeleteIssueButton } from "@/components/issue/DeleteIssueButton";
 import { IssueMetaPanel } from "@/components/issue/IssueMetaPanel";
@@ -55,6 +56,8 @@ export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
           <div className="mb-2 text-sm font-medium">설명</div>
           <MarkdownBody content={issue.body_markdown} />
         </section>
+
+        <AttachmentSection issueId={issue.id} />
 
         <Tabs defaultValue="comments">
           <TabsList>

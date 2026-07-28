@@ -94,8 +94,8 @@ export type Database = {
           id: string
           issue_id: string
           mime_type: string | null
-          s3_key: string
           size: number
+          storage_path: string
           uploader_id: string
         }
         Insert: {
@@ -104,8 +104,8 @@ export type Database = {
           id?: string
           issue_id: string
           mime_type?: string | null
-          s3_key: string
           size: number
+          storage_path: string
           uploader_id: string
         }
         Update: {
@@ -114,8 +114,8 @@ export type Database = {
           id?: string
           issue_id?: string
           mime_type?: string | null
-          s3_key?: string
           size?: number
+          storage_path?: string
           uploader_id?: string
         }
         Relationships: [
