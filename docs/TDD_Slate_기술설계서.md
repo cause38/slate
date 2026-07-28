@@ -30,7 +30,7 @@
 | 백엔드 | **Supabase Cloud** | Postgres + Auth + Storage + Realtime + Edge Functions 통합 |
 | DB | **Postgres 15+** (Supabase 기본) | |
 | Edge Function 런타임 | **Deno** (Supabase 기본) | |
-| 첨부파일 | **AWS S3** | 사내 기존 자산, presigned URL 방식 |
+| 첨부파일 | **Supabase Storage** | 비공개 버킷 + 서명 URL. ~~AWS S3~~ v1.6 전환 (14장 변경 이력) — ch4 `s3-presign` Edge Function 폐기 |
 | 패키지 매니저 | **pnpm** | 모노레포 효율, 디스크 절약 |
 | 코드 포맷 | **Biome** (lint + format) | ESLint+Prettier보다 빠르고 단일 도구 |
 | 테스트 | **Vitest** (단위) + **Playwright** (E2E) | |
@@ -1209,3 +1209,4 @@ supabase functions serve         # Edge Function 로컬 실행
 | 1.3 | 2026-07 | DB 보안 결정 2건 반영 (사용자 확정): ① DB 함수 4종에 `set search_path = public` 고정 (하이재킹 방지) ② 이슈 키 트리거 WHEN 조건 제거 — 클라이언트의 키 카운터 우회 차단, 단 `service_role` 요청·직접 DB 연결은 명시 키 보존 (PRD 4.4 지라 키 이관 유지). 검증 중 잠복 버그 발견·수정: 키 발급 함수가 호출자 권한으로 실행돼 member의 이슈 생성 시 카운터 증가가 RLS에 막힘 → `security definer` + `auth.role()` 판별로 변경. 마이그레이션 2개 추가 (`...003_security_hardening`, `...004_fix_issue_key_assignment_rls`). 실동작 검증: member 정상 생성 `DOTOLI-1` 발급 ✓, 명시 키(`HACK-999`) 우회 시도 강제 재발급 ✓. |
 | 1.4 | 2026-07 | W2 개발 중 DB 보강 2건. ① **첫 admin 부트스트랩** (`...20260721000001`): admin이 0명이면 최초 가입자를 1회 승격(멱등). ② **W2-6 보안 2건** (`...20260722000001`): 권한 상승 방지 트리거(member가 자기 role/is_active 변경 불가, admin만 허용) + 아카이브 강제 트리거(is_archived 프로젝트에 이슈 insert/update 거부, delete는 허용). PRD v1.4와 연동. |
 | 1.5 | 2026-07 | W2-6 리뷰 반영: **마지막 활성 admin 보호** (`...20260722000002`) — admin이 직접 REST로 자기 자신/마지막 admin을 강등·비활성화해 워크스페이스가 잠기는 것을 트리거로 차단. UI 가드와 DB 가드 대칭 완성. 아카이브 강제의 delete 허용 결정도 명문화. |
+| 1.6 | 2026-07 | **첨부파일 AWS S3 → Supabase Storage 전환** (W4-3, PRD v1.5 연동). 마이그레이션 `...20260727000001`: `attachments.s3_key` → `storage_path` rename, 비공개 버킷 `attachments`(25MB 제한) 생성, `storage.objects` 정책 3종(읽기 전체·insert 인증·delete 본인/admin — attachments 테이블 정책과 대칭). 브라우저가 Supabase JS로 직접 업로드, 다운로드는 60초 서명 URL. **ch4 `s3-presign` Edge Function 및 4.4 절, `S3_*` 시크릿·env는 폐기**(2단계에서 첫 Edge Function은 깃헙 웹훅으로 대체 예정). |

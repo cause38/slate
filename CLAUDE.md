@@ -71,7 +71,7 @@
 
 - **Frontend**: Next.js 15 App Router + TypeScript + Tailwind + shadcn/ui + TanStack Query + Zustand + dnd-kit + react-hook-form + zod
 - **Backend**: Supabase Cloud (Postgres 15 + Auth + Storage + Realtime + Edge Functions/Deno)
-- **첨부파일**: AWS S3 (presigned URL 방식, Supabase Storage 미사용)
+- **첨부파일**: Supabase Storage (비공개 버킷 + 서명 URL). ~~AWS S3~~ — 개인 프로젝트·로컬 호스팅 미계획으로 S3 채택 명분 소멸, W4-3에서 전환
 - **패키지 매니저**: pnpm
 - **린트/포맷**: Biome (ESLint/Prettier 대신)
 - **테스트**: Vitest + Playwright
