@@ -1,8 +1,8 @@
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { StatusPill } from "@/components/issue/StatusPill";
 import { CreateProjectDialog } from "@/components/shared/CreateProjectDialog";
+import { GlobalModals } from "@/components/shared/GlobalModals";
 import { QuickCreateButton } from "@/components/shared/QuickCreateButton";
-import { QuickCreateModal } from "@/components/shared/QuickCreateModal";
 import { Sidebar } from "@/components/shared/Sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -111,7 +111,7 @@ export default async function HomePage() {
           )}
         </section>
       </main>
-      <QuickCreateModal />
+      <GlobalModals />
     </div>
   );
 }

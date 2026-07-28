@@ -1,5 +1,5 @@
 import { IssueDetailView } from "@/components/issue/IssueDetailView";
-import { QuickCreateModal } from "@/components/shared/QuickCreateModal";
+import { GlobalModals } from "@/components/shared/GlobalModals";
 import { Sidebar } from "@/components/shared/Sidebar";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
@@ -28,7 +28,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
     <div className="flex min-h-screen">
       <Sidebar projects={projects ?? []} currentProjectKey={currentProjectKey} />
       <IssueDetailView issueKey={issueKey} />
-      <QuickCreateModal />
+      <GlobalModals />
     </div>
   );
 }
