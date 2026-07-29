@@ -1,6 +1,7 @@
 "use client";
 
 import { IssueRow } from "@/components/issue/IssueRow";
+import { IssueFilterBar } from "@/components/shared/IssueFilterBar";
 import { CompleteSprintDialog } from "@/components/sprint/CompleteSprintDialog";
 import { CreateSprintDialog } from "@/components/sprint/CreateSprintDialog";
 import { DraggableIssueRow } from "@/components/sprint/DraggableIssueRow";
@@ -9,6 +10,13 @@ import { InlineCreateIssue } from "@/components/sprint/InlineCreateIssue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateRange } from "@/lib/date";
+import {
+  EMPTY_FILTERS,
+  type FilterDimension,
+  activeFilterCount,
+  deriveFilterOptions,
+  filterIssues,
+} from "@/lib/issue-filters";
 import {
   type BoardIssue,
   useProjectIssues,
@@ -25,7 +33,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type BacklogViewProps = {
@@ -33,6 +41,14 @@ type BacklogViewProps = {
 };
 
 const BACKLOG_ZONE = "backlog";
+// 스프린트=그룹축이라 필터에서 제외, 나머지 5차원 중 상태 포함
+const BACKLOG_FILTER_DIMENSIONS: FilterDimension[] = [
+  "types",
+  "statuses",
+  "assigneeIds",
+  "epicIds",
+  "labelIds",
+];
 
 function sumPoints(issues: BoardIssue[]) {
   return issues.reduce((total, issue) => total + (issue.story_points ?? 0), 0);
@@ -45,6 +61,10 @@ export function BacklogView({ projectId }: BacklogViewProps) {
   const updateSprint = useUpdateIssueSprint(projectId);
   const [completeTarget, setCompleteTarget] = useState<Sprint | null>(null);
   const [activeIssue, setActiveIssue] = useState<BoardIssue | null>(null);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const options = useMemo(() => deriveFilterOptions(issues ?? []), [issues]);
+  const filtered = useMemo(() => filterIssues(issues ?? [], filters), [issues, filters]);
+  const hasActiveFilters = activeFilterCount(filters) > 0;
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor),
@@ -53,12 +73,16 @@ export function BacklogView({ projectId }: BacklogViewProps) {
   const activeSprint = sprints?.find((s) => s.status === "active") ?? null;
   const plannedSprints = sprints?.filter((s) => s.status === "planned") ?? [];
 
-  const issuesInSprint = (sprintId: string) =>
-    issues?.filter((i) => i.sprint_id === sprintId) ?? [];
+  // 표시용 그룹핑은 필터된 목록 기준
+  const issuesInSprint = (sprintId: string) => filtered.filter((i) => i.sprint_id === sprintId);
   const activeIssues = activeSprint ? issuesInSprint(activeSprint.id) : [];
-  const backlogIssues = issues?.filter((i) => i.sprint_id === null) ?? [];
+  const backlogIssues = filtered.filter((i) => i.sprint_id === null);
   const activeDone = activeIssues.filter((i) => i.status === "done");
-  const incompleteCount = activeIssues.length - activeDone.length;
+  // 스프린트 마감 캐리오버는 필터와 무관하게 실제 미완료 이슈 수를 써야 함
+  const activeSprintAll = activeSprint
+    ? (issues?.filter((i) => i.sprint_id === activeSprint.id) ?? [])
+    : [];
+  const incompleteCount = activeSprintAll.filter((i) => i.status !== "done").length;
 
   function handleStart(sprintId: string) {
     startSprint.mutate(sprintId, {
@@ -114,6 +138,12 @@ export function BacklogView({ projectId }: BacklogViewProps) {
       onDragCancel={() => setActiveIssue(null)}
     >
       <div className="flex flex-1 flex-col bg-background">
+        <IssueFilterBar
+          filters={filters}
+          onChange={setFilters}
+          options={options}
+          dimensions={BACKLOG_FILTER_DIMENSIONS}
+        />
         {/* Active 스프린트 */}
         {activeSprint ? (
           <DroppableZone id={activeSprint.id} sprintId={activeSprint.id}>
@@ -141,7 +171,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                   activeIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
                 ) : (
                   <div className="px-5 py-6 text-center text-xs text-muted-foreground">
-                    백로그 이슈를 여기로 드래그해 스프린트를 채워요
+                    {hasActiveFilters
+                      ? "필터에 맞는 이슈가 없어요. 필터를 조정해보세요."
+                      : "백로그 이슈를 여기로 드래그해 스프린트를 채워요"}
                   </div>
                 )}
               </div>
@@ -208,7 +240,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                 backlogIssues.map((issue) => <DraggableIssueRow key={issue.id} issue={issue} />)
               ) : (
                 <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-                  백로그가 비어 있어요. 위 입력창이나 C로 이슈를 만들어보세요.
+                  {hasActiveFilters
+                    ? "필터에 맞는 이슈가 없어요. 필터를 조정해보세요."
+                    : "백로그가 비어 있어요. 위 입력창이나 C로 이슈를 만들어보세요."}
                 </div>
               )}
             </div>

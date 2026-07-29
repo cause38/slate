@@ -12,7 +12,7 @@ type IssueLabelLite = Pick<Tables<"labels">, "id" | "name" | "color">;
 // 보드/백로그 카드가 쓰는 이슈 서브셋 (도메인 유니온으로 좁힘)
 export type BoardIssue = Pick<
   Tables<"issues">,
-  "id" | "key" | "title" | "story_points" | "sprint_id" | "rank" | "due_date"
+  "id" | "key" | "title" | "story_points" | "sprint_id" | "epic_id" | "rank" | "due_date"
 > & {
   status: IssueStatus;
   type: IssueType;
@@ -22,7 +22,7 @@ export type BoardIssue = Pick<
 };
 
 const BOARD_SELECT = `
-  id, key, title, status, type, priority, story_points, sprint_id, rank, due_date,
+  id, key, title, status, type, priority, story_points, sprint_id, epic_id, rank, due_date,
   assignee:users!assignee_id(id, name, avatar_url),
   labels:issue_labels(label:labels(id, name, color))
 `;
