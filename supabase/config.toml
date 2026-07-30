@@ -385,6 +385,10 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# GitHub 웹훅은 Supabase JWT 대신 자체 HMAC(x-hub-signature-256)로 인증하므로 JWT 검증을 끈다.
+[functions.github-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
