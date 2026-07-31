@@ -4,6 +4,7 @@ import { ActivityLog } from "@/components/issue/ActivityLog";
 import { AttachmentSection } from "@/components/issue/AttachmentSection";
 import { CommentSection } from "@/components/issue/CommentSection";
 import { DeleteIssueButton } from "@/components/issue/DeleteIssueButton";
+import { GithubLinksSection } from "@/components/issue/GithubLinksSection";
 import { IssueMetaPanel } from "@/components/issue/IssueMetaPanel";
 import { MarkdownBody } from "@/components/issue/MarkdownBody";
 import { StatusPill } from "@/components/issue/StatusPill";
@@ -56,6 +57,8 @@ export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
           <div className="mb-2 text-sm font-medium">설명</div>
           <MarkdownBody content={issue.body_markdown} />
         </section>
+
+        <GithubLinksSection issueId={issue.id} />
 
         <AttachmentSection issueId={issue.id} />
 

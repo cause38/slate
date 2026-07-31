@@ -35,6 +35,19 @@ export const ISSUE_PRIORITY_LABELS: Record<IssuePriority, string> = {
 
 export const STORY_POINT_OPTIONS = [0, 1, 2, 3, 5, 8, 13] as const;
 
+// GitHub 연동 (TDD 3장 github_links — kind/PR state 고정)
+export const GITHUB_LINK_KINDS = ["pr", "commit"] as const;
+export type GithubLinkKind = (typeof GITHUB_LINK_KINDS)[number];
+
+export const GITHUB_PR_STATES = ["open", "merged", "closed"] as const;
+export type GithubPrState = (typeof GITHUB_PR_STATES)[number];
+
+export const GITHUB_PR_STATE_LABELS: Record<GithubPrState, string> = {
+  open: "Open",
+  merged: "Merged",
+  closed: "Closed",
+};
+
 // 디자인 핸드오프 3.2 — 라벨·프로젝트·에픽 등 사용자 지정 색 8색 팔레트
 export const COLOR_PRESETS = [
   "#ef4444",
@@ -57,4 +70,8 @@ export function isIssueType(value: string): value is IssueType {
 
 export function isIssuePriority(value: string): value is IssuePriority {
   return (ISSUE_PRIORITIES as readonly string[]).includes(value);
+}
+
+export function isGithubPrState(value: string): value is GithubPrState {
+  return (GITHUB_PR_STATES as readonly string[]).includes(value);
 }
