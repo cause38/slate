@@ -679,6 +679,10 @@ function verifySignature(body: string, signature: string | null, secret: string)
 
 ### 4.3 `slack-notify/index.ts`
 
+> ⚠️ **v1.7에서 구현 방식 변경** (아래 코드는 원안 참고용). 실제 구현은 봇 `chat.postMessage` 대신
+> **Incoming Webhook**(`SLACK_WEBHOOK_URL`)으로 발송하고, `slack_messages` 기록·`slack_workspaces.bot_token`은
+> 1단계에서 미사용. 큐 소비는 `pgmq_read`/`pgmq_delete` public 래퍼 RPC 사용. 변경 이력 v1.7 참조.
+
 ```typescript
 import { serve } from "https://deno.land/std@0.220.0/http/server.ts";
 import { createServiceClient } from "../_shared/supabase.ts";
@@ -1210,3 +1214,4 @@ supabase functions serve         # Edge Function 로컬 실행
 | 1.4 | 2026-07 | W2 개발 중 DB 보강 2건. ① **첫 admin 부트스트랩** (`...20260721000001`): admin이 0명이면 최초 가입자를 1회 승격(멱등). ② **W2-6 보안 2건** (`...20260722000001`): 권한 상승 방지 트리거(member가 자기 role/is_active 변경 불가, admin만 허용) + 아카이브 강제 트리거(is_archived 프로젝트에 이슈 insert/update 거부, delete는 허용). PRD v1.4와 연동. |
 | 1.5 | 2026-07 | W2-6 리뷰 반영: **마지막 활성 admin 보호** (`...20260722000002`) — admin이 직접 REST로 자기 자신/마지막 admin을 강등·비활성화해 워크스페이스가 잠기는 것을 트리거로 차단. UI 가드와 DB 가드 대칭 완성. 아카이브 강제의 delete 허용 결정도 명문화. |
 | 1.6 | 2026-07 | **첨부파일 AWS S3 → Supabase Storage 전환** (W4-3, PRD v1.5 연동). 마이그레이션 `...20260727000001`: `attachments.s3_key` → `storage_path` rename, 비공개 버킷 `attachments`(25MB 제한) 생성, `storage.objects` 정책 3종(읽기 전체·insert 인증·delete 본인/admin — attachments 테이블 정책과 대칭). 브라우저가 Supabase JS로 직접 업로드, 다운로드는 60초 서명 URL. **ch4 `s3-presign` Edge Function 및 4.4 절, `S3_*` 시크릿·env는 폐기**(2단계에서 첫 Edge Function은 깃헙 웹훅으로 대체 예정). |
+| 1.7 | 2026-08 | **W5 GitHub 연동 구현·배포**: 자동 상태 전환 RPC `transition_if_todo`/`transition_if_open`(`...20260729000001`, security invoker·원자적·자동화 설정 존중), `github-webhook` Edge Function(HMAC SHA-256·`verify_jwt=false`·pull_request/push·github_links upsert·자동 전환), 이슈 상세 GitHub 링크 UI. **W6 Slack 알림 — 봇 Web API → Incoming Webhook 방식으로 변경**(1단계 결정): 봇 토큰/OAuth 대신 `SLACK_WEBHOOK_URL` 시크릿 하나로 발송. 이에 따라 4.3의 `chat.postMessage`·`slack_workspaces.bot_token`·`slack_messages` insert는 1단계에서 **미사용**(웹훅은 메시지 `ts` 미반환 → 스레딩·`slack_messages` 기록은 2단계). `slack-notify`는 pgmq 큐를 public 래퍼 RPC(`pgmq_read`/`pgmq_delete`, `...20260803000001`, service_role 전용)로 소비, `SLACK_WEBHOOK_URL` 미설정 시 드라이런(로깅). 큐 발신(트리거)은 기존대로 유지. |
