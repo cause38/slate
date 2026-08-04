@@ -42,6 +42,10 @@ export type GithubLinkKind = (typeof GITHUB_LINK_KINDS)[number];
 export const GITHUB_PR_STATES = ["open", "merged", "closed"] as const;
 export type GithubPrState = (typeof GITHUB_PR_STATES)[number];
 
+// 인앱 알림 type — DB 트리거(20260804000001_notification_triggers)와의 계약
+export const NOTIFICATION_TYPES = ["assigned", "status_changed", "commented"] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
 export const GITHUB_PR_STATE_LABELS: Record<GithubPrState, string> = {
   open: "Open",
   merged: "Merged",

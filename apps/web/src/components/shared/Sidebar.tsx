@@ -1,5 +1,6 @@
 "use client";
 
+import { NotificationBell } from "@/components/shared/NotificationBell";
 import { ProjectSwitcher } from "@/components/shared/ProjectSwitcher";
 import type { Project } from "@/lib/queries/projects";
 import { cn } from "@/lib/utils";
@@ -27,12 +28,15 @@ export function Sidebar({ projects, currentProjectKey }: SidebarProps) {
 
   return (
     <aside className="flex w-56 shrink-0 flex-col gap-1 border-r bg-card p-3">
-      <Link href="/" className="mb-1 flex items-center gap-2 px-2 py-1">
-        <span className="flex h-7 w-7 items-center justify-center rounded bg-foreground text-sm text-background">
-          ◆
-        </span>
-        <span className="text-sm font-semibold">Slate</span>
-      </Link>
+      <div className="mb-1 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 px-2 py-1">
+          <span className="flex h-7 w-7 items-center justify-center rounded bg-foreground text-sm text-background">
+            ◆
+          </span>
+          <span className="text-sm font-semibold">Slate</span>
+        </Link>
+        <NotificationBell />
+      </div>
 
       {currentProjectKey ? (
         <>
