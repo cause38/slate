@@ -11,6 +11,9 @@ type UiState = {
   closeSearch: () => void;
   setSearchOpen: (open: boolean) => void;
   toggleSearch: () => void;
+  helpOpen: boolean;
+  toggleHelp: () => void;
+  setHelpOpen: (open: boolean) => void;
 };
 
 export const useUiStore = create<UiState>((set) => ({
@@ -22,4 +25,7 @@ export const useUiStore = create<UiState>((set) => ({
   closeSearch: () => set({ searchOpen: false }),
   setSearchOpen: (open) => set({ searchOpen: open }),
   toggleSearch: () => set((state) => ({ searchOpen: !state.searchOpen })),
+  helpOpen: false,
+  toggleHelp: () => set((state) => ({ helpOpen: !state.helpOpen })),
+  setHelpOpen: (open) => set({ helpOpen: open }),
 }));
