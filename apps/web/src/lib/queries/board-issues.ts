@@ -1,6 +1,7 @@
 "use client";
 
 import type { IssuePriority, IssueStatus, IssueType } from "@/lib/constants";
+import { changedRanks, compareByRank } from "@/lib/issue-rank";
 import { issueKeys } from "@/lib/queries/issues";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
@@ -112,6 +113,48 @@ export function useUpdateIssueSprint(projectId: string) {
         old?.map((issue) =>
           issue.id === input.issueId ? { ...issue, sprint_id: input.sprintId } : issue,
         ),
+      );
+      return { previous };
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: issueKeys.all });
+    },
+  });
+}
+
+/**
+ * 같은 그룹(스프린트/백로그, 또는 보드 컬럼) 안에서의 순서 저장.
+ * rank 를 바꿔야 하는 행만 갱신하고, 캐시도 서버와 같은 기준으로 재정렬한다.
+ */
+export function useReorderIssues(projectId: string) {
+  const queryClient = useQueryClient();
+  const queryKey = boardIssueKeys.byProject(projectId);
+
+  return useMutation({
+    mutationFn: async (ordered: BoardIssue[]): Promise<void> => {
+      const updates = changedRanks(ordered);
+      if (updates.length === 0) return;
+      const supabase = createClient();
+      const results = await Promise.all(
+        updates.map((row) => supabase.from("issues").update({ rank: row.rank }).eq("id", row.id)),
+      );
+      const failed = results.find((result) => result.error);
+      if (failed?.error) throw failed.error;
+    },
+    onMutate: async (ordered) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<BoardIssue[]>(queryKey);
+      const nextRank = new Map(changedRanks(ordered).map((row) => [row.id, row.rank]));
+      queryClient.setQueryData<BoardIssue[]>(queryKey, (old) =>
+        old
+          ?.map((issue) => {
+            const rank = nextRank.get(issue.id);
+            return rank === undefined ? issue : { ...issue, rank };
+          })
+          .sort(compareByRank),
       );
       return { previous };
     },

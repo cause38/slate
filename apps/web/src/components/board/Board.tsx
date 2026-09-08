@@ -3,7 +3,13 @@
 import { Column } from "@/components/board/Column";
 import { IssueCard } from "@/components/board/IssueCard";
 import { ISSUE_STATUSES, type IssueStatus, isIssueStatus } from "@/lib/constants";
-import { type BoardIssue, useUpdateIssueStatus } from "@/lib/queries/board-issues";
+import { pointerFirstCollision } from "@/lib/dnd";
+import { moveItem } from "@/lib/issue-rank";
+import {
+  type BoardIssue,
+  useReorderIssues,
+  useUpdateIssueStatus,
+} from "@/lib/queries/board-issues";
 import {
   DndContext,
   type DragEndEvent,
@@ -25,6 +31,7 @@ type BoardProps = {
 
 export function Board({ projectId, issues }: BoardProps) {
   const updateStatus = useUpdateIssueStatus(projectId);
+  const reorder = useReorderIssues(projectId);
   const [activeIssue, setActiveIssue] = useState<BoardIssue | null>(null);
   // 드래그 시작 임계값 8px — 카드 클릭(상세 이동)과 드래그를 구분. 키보드 드래그도 지원(a11y)
   const sensors = useSensors(
@@ -48,7 +55,25 @@ export function Board({ projectId, issues }: BoardProps) {
       ? (String(over.id) as IssueStatus)
       : (over.data.current?.status as IssueStatus | undefined);
     const activeStatus = active.data.current?.status as IssueStatus | undefined;
-    if (!overStatus || overStatus === activeStatus) return;
+    if (!overStatus || !activeStatus) return;
+
+    // 같은 컬럼이면 순서 변경. 예전엔 여기서 그냥 빠져나가, 카드가 밀리는 정렬
+    // 미리보기까지 다 보여주고도 놓는 순간 제자리로 튕겼다.
+    if (overStatus === activeStatus) {
+      const overId = String(over.id);
+      if (overId === String(active.id)) return;
+      const column = byStatus(activeStatus);
+      const from = column.findIndex((issue) => issue.id === String(active.id));
+      const to = column.findIndex((issue) => issue.id === overId);
+      if (from < 0 || to < 0) return;
+      reorder.mutate(moveItem(column, from, to), {
+        onError: (error) =>
+          toast.error("순서 저장에 실패했어요", {
+            description: error instanceof Error ? error.message : undefined,
+          }),
+      });
+      return;
+    }
 
     updateStatus.mutate(
       { issueId: String(active.id), status: overStatus },
@@ -64,6 +89,7 @@ export function Board({ projectId, issues }: BoardProps) {
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={pointerFirstCollision}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveIssue(null)}
