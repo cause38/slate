@@ -40,7 +40,7 @@
 2. 아래 순서로 진행한다:
    1. 저장소 초기화 (`pnpm init`, `.gitignore`, `.editorconfig`, `biome.json`)
    2. Next.js 15 (App Router) 부트스트랩 (`pnpm create next-app`, TypeScript, Tailwind, App Router)
-   3. shadcn/ui 초기화 (테마: **Zinc + Blue 악센트**, 다크 모드 디폴트)
+   3. shadcn/ui 초기화 (테마: **Zinc + Blue 악센트**, 기본값은 OS 설정 추종 + 사이드바에서 전환)
    4. Supabase 프로젝트 생성 안내 (사용자가 브라우저에서 수동 생성 후 URL/anon key 전달)
    5. `supabase/migrations/` 4개 파일 작성 (TDD 3장 스키마 그대로)
    6. 타입 자동 생성 (`supabase gen types typescript --linked`)
@@ -126,7 +126,7 @@ slate/
 - Tailwind만. 커스텀 CSS는 `globals.css`에만.
 - shadcn/ui 컴포넌트는 `apps/web/src/components/ui/`에 자동 생성 그대로 두기.
 - 색은 CSS variables (`--background`, `--foreground`, ...) 통해서만. 색 하드코딩 금지.
-- 다크 모드는 `next-themes` + Tailwind `dark:` 유틸.
+- 다크 모드는 `next-themes` + Tailwind `dark:` 유틸. 기본값은 `system`(OS 추종)이고 사이드바 하단에서 시스템/라이트/다크로 바꾼다.
 
 **파일 구조**
 - 컴포넌트 파일은 PascalCase (`IssueCard.tsx`)
