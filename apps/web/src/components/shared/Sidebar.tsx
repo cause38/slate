@@ -2,6 +2,7 @@
 
 import { NotificationBell } from "@/components/shared/NotificationBell";
 import { ProjectSwitcher } from "@/components/shared/ProjectSwitcher";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import type { Project } from "@/lib/queries/projects";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -80,6 +81,10 @@ export function Sidebar({ projects, currentProjectKey }: SidebarProps) {
           ))}
         </>
       )}
+
+      <div className="mt-auto pt-2">
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }
