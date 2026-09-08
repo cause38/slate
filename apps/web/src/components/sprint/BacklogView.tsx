@@ -331,7 +331,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
         </DroppableZone>
       </div>
 
-      <DragOverlay>
+      {/* 낙관적 업데이트로 목록이 이미 새 순서라, 오버레이가 옛 자리로 날아가는 기본
+          드롭 애니메이션(250ms)은 행이 올라갔다 내려오는 것처럼 보이기만 한다. 끈다. */}
+      <DragOverlay dropAnimation={null}>
         {/* 포인터가 드래그 내내 오버레이 안에 있어 hover 가 계속 걸린다. pointer-events-none
             로 빼야 의도한 카드 색이 보이고 제목 밑줄도 안 생긴다. 충돌 판정은 rect 기반이라
             드롭에는 영향이 없다. */}

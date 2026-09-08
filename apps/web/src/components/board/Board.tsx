@@ -99,7 +99,11 @@ export function Board({ projectId, issues }: BoardProps) {
           <Column key={status} status={status} issues={byStatus(status)} />
         ))}
       </div>
-      <DragOverlay>{activeIssue && <IssueCard issue={activeIssue} overlay />}</DragOverlay>
+      {/* 낙관적 업데이트로 카드가 이미 새 자리라, 기본 드롭 애니메이션은 되돌아갔다
+          다시 오는 것처럼 보이기만 한다. 끈다. */}
+      <DragOverlay dropAnimation={null}>
+        {activeIssue && <IssueCard issue={activeIssue} overlay />}
+      </DragOverlay>
     </DndContext>
   );
 }
