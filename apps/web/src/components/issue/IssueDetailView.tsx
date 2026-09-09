@@ -4,9 +4,10 @@ import { ActivityLog } from "@/components/issue/ActivityLog";
 import { AttachmentSection } from "@/components/issue/AttachmentSection";
 import { CommentSection } from "@/components/issue/CommentSection";
 import { DeleteIssueButton } from "@/components/issue/DeleteIssueButton";
+import { EditableBody } from "@/components/issue/EditableBody";
+import { EditableTitle } from "@/components/issue/EditableTitle";
 import { GithubLinksSection } from "@/components/issue/GithubLinksSection";
 import { IssueMetaPanel } from "@/components/issue/IssueMetaPanel";
-import { MarkdownBody } from "@/components/issue/MarkdownBody";
 import { StatusPill } from "@/components/issue/StatusPill";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useComments } from "@/lib/queries/comments";
@@ -51,12 +52,9 @@ export function IssueDetailView({ issueKey }: IssueDetailViewProps) {
             <DeleteIssueButton issueId={issue.id} issueKey={issue.key} />
           </div>
         </div>
-        <h1 className="mb-6 text-2xl font-semibold">{issue.title}</h1>
+        <EditableTitle issueKey={issue.key} title={issue.title} />
 
-        <section className="mb-6 rounded-lg border bg-card p-4">
-          <div className="mb-2 text-sm font-medium">설명</div>
-          <MarkdownBody content={issue.body_markdown} />
-        </section>
+        <EditableBody issueKey={issue.key} body={issue.body_markdown} />
 
         <GithubLinksSection issueId={issue.id} />
 
