@@ -1,5 +1,6 @@
 "use client";
 
+import { issueDetailKey } from "@/lib/queries/issue-detail-shared";
 import { type Issue, fetchMyIssues } from "@/lib/queries/issues-shared";
 import { projectKeys } from "@/lib/queries/projects";
 import { createClient } from "@/lib/supabase/client";
@@ -11,7 +12,7 @@ export type { Issue, IssueWithProject } from "@/lib/queries/issues-shared";
 export const issueKeys = {
   all: ["issues"] as const,
   mine: (userId: string) => [...issueKeys.all, "mine", userId] as const,
-  detail: (issueKey: string) => [...issueKeys.all, "detail", issueKey] as const,
+  detail: issueDetailKey,
 };
 
 export function useMyIssues(userId: string | undefined) {
