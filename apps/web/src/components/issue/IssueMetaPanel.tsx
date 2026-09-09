@@ -28,6 +28,7 @@ import {
   isIssueType,
 } from "@/lib/constants";
 import { formatDateColumn, formatShortDate } from "@/lib/date";
+import { useProjectIssues } from "@/lib/queries/board-issues";
 import type { IssueDetail } from "@/lib/queries/issue-detail";
 import { useUpdateIssue } from "@/lib/queries/issue-detail";
 import { useUsers } from "@/lib/queries/users";
@@ -44,6 +45,11 @@ export function IssueMetaPanel({ issue }: IssueMetaPanelProps) {
   const update = useUpdateIssue(issue.key);
   const { data: users } = useUsers();
   const [dueOpen, setDueOpen] = useState(false);
+  // 보드·백로그가 이미 쓰는 쿼리라 캐시를 그대로 재사용한다. 자기 자신은 부모가 될 수 없다.
+  const { data: projectIssues } = useProjectIssues(issue.project?.id);
+  const epics = (projectIssues ?? []).filter(
+    (candidate) => candidate.type === "epic" && candidate.id !== issue.id,
+  );
 
   return (
     <aside className="w-72 shrink-0 space-y-3 overflow-auto border-l bg-card p-5">
@@ -202,10 +208,38 @@ export function IssueMetaPanel({ issue }: IssueMetaPanelProps) {
         </Popover>
       </MetaRow>
 
-      {issue.epic && (
+      {/* 에픽 타입 이슈 자신에게는 부모 에픽을 붙이지 않는다(1단계는 1계층). */}
+      {issue.type !== "epic" && (
         <MetaRow label="에픽">
+          <Select
+            value={issue.epic_id ?? UNASSIGNED}
+            onValueChange={(value) =>
+              update.mutate({ epic_id: value === UNASSIGNED ? null : value })
+            }
+          >
+            <SelectTrigger size="sm" className="border-none bg-transparent shadow-none">
+              {issue.epic ? (
+                <span className="truncate">{issue.epic.title}</span>
+              ) : (
+                <span className="text-muted-foreground">없음</span>
+              )}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={UNASSIGNED}>없음</SelectItem>
+              {epics.map((epic) => (
+                <SelectItem key={epic.id} value={epic.id}>
+                  {epic.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </MetaRow>
+      )}
+
+      {issue.epic && (
+        <MetaRow label="에픽 열기">
           <Link href={`/i/${issue.epic.key}`} className="truncate hover:underline">
-            {issue.epic.title}
+            {issue.epic.key}
           </Link>
         </MetaRow>
       )}
