@@ -26,8 +26,12 @@
 ## 현재 상태
 
 - ✅ PRD 잠금 (v1.5), TDD (v1.7), 와이어프레임, 디자인 핸드오프 완료
-- ✅ **1단계(TDD 13장 W1~W8) 전부 완성** — 인증/이슈 CRUD/에픽/스프린트/칸반/백로그/스프린트 리포트·벨로시티/코멘트·활동/첨부(Supabase Storage)/검색·필터/인앱 알림 벨/GitHub 연동(웹훅·자동전환·링크)/Slack 알림(웹훅·큐)/지라 마이그레이션 dry-run 도구/Vitest 단위 테스트.
+- ✅ **Vercel 배포 완료** — 함수 실행 리전 서울(`icn1`) 고정. 기본 리전이 미국이라 페이지마다 약 215ms를 태평양 왕복에 쓰고 있었다.
+- ✅ **1단계 W1~W8 + 배포 후 보완** — 인증 / 이슈 CRUD·제목·본문 편집 / 에픽(연결 + 목록 화면) / 스프린트 / 칸반·백로그 드래그(순서 저장 포함) / 리포트·벨로시티 / 코멘트·활동 / 첨부(Supabase Storage) / 검색·필터 / 인앱 알림 벨 / 테마 토글 / GitHub 웹훅 / Slack 알림 / 지라 dry-run 도구 / Vitest 44개.
+- ⚠️ **"W8까지 전부 완성"은 한때 사실이 아니었다.** 배포 직후 전수 감사에서 에픽 화면 부재, 이슈 제목·본문 편집 부재, 권한 게이팅 미배선, 드래그 순서 저장 부재, RLS 차단이 무음 성공으로 끝나는 문제, 404 막다른 길이 드러났다. `docs/배포_후_수정_계획.md`의 F-1~F-18로 메웠다. **완료 기록을 근거로 삼기 전에 실제 화면에서 확인할 것.**
+- ❌ **Realtime 도입 안 함** — 창 포커스 재조회(`refetchOnWindowFocus`)로 대체하기로 확정. 아래 스택 표의 Realtime은 미사용이다.
 - ⏳ **사용자 대기(외부 연결)**: GitHub 웹훅 등록 · Slack `SLACK_WEBHOOK_URL`+cron 스케줄 · Jira `JIRA_*` 토큰. 연결 전까지 각 기능은 배포·검증만 된 상태.
+- ⏳ **남은 작업**: `docs/배포_후_수정_계획.md` 참조. F-10(이슈 상세 서버 하이드레이션) 미착수.
 - ⏳ **2단계 예정**: 노션 언펄, 번다운 차트, 저장 필터, 코멘트 Slack 큐, 지라 Phase B~D 등.
 
 ---
@@ -69,7 +73,7 @@
 ## 기술 스택 요약
 
 - **Frontend**: Next.js 15 App Router + TypeScript + Tailwind + shadcn/ui + TanStack Query + Zustand + dnd-kit + react-hook-form + zod
-- **Backend**: Supabase Cloud (Postgres 15 + Auth + Storage + Realtime + Edge Functions/Deno)
+- **Backend**: Supabase Cloud (Postgres 15 + Auth + Storage + Edge Functions/Deno). ~~Realtime~~ — 도입하지 않기로 확정, 창 포커스 재조회로 대체
 - **첨부파일**: Supabase Storage (비공개 버킷 + 서명 URL). ~~AWS S3~~ — 개인 프로젝트·로컬 호스팅 미계획으로 S3 채택 명분 소멸, W4-3에서 전환
 - **패키지 매니저**: pnpm
 - **린트/포맷**: Biome (ESLint/Prettier 대신)
