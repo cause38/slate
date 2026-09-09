@@ -2,6 +2,7 @@
 
 import type { IssuePriority, IssueStatus, IssueType } from "@/lib/constants";
 import { changedRanks, compareByRank } from "@/lib/issue-rank";
+import { assertWritten } from "@/lib/queries/assert-written";
 import { issueKeys } from "@/lib/queries/issues";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
@@ -67,11 +68,12 @@ export function useUpdateIssueStatus(projectId: string) {
   return useMutation({
     mutationFn: async (input: { issueId: string; status: IssueStatus }): Promise<void> => {
       const supabase = createClient();
-      const { error } = await supabase
+      const result = await supabase
         .from("issues")
         .update({ status: input.status })
-        .eq("id", input.issueId);
-      if (error) throw error;
+        .eq("id", input.issueId)
+        .select("id");
+      assertWritten(result, "상태를 바꾸지 못했어요");
     },
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey });
@@ -100,11 +102,12 @@ export function useUpdateIssueSprint(projectId: string) {
   return useMutation({
     mutationFn: async (input: { issueId: string; sprintId: string | null }): Promise<void> => {
       const supabase = createClient();
-      const { error } = await supabase
+      const result = await supabase
         .from("issues")
         .update({ sprint_id: input.sprintId })
-        .eq("id", input.issueId);
-      if (error) throw error;
+        .eq("id", input.issueId)
+        .select("id");
+      assertWritten(result, "스프린트를 옮기지 못했어요");
     },
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey });
@@ -139,10 +142,13 @@ export function useReorderIssues(projectId: string) {
       if (updates.length === 0) return;
       const supabase = createClient();
       const results = await Promise.all(
-        updates.map((row) => supabase.from("issues").update({ rank: row.rank }).eq("id", row.id)),
+        updates.map((row) =>
+          supabase.from("issues").update({ rank: row.rank }).eq("id", row.id).select("id"),
+        ),
       );
-      const failed = results.find((result) => result.error);
-      if (failed?.error) throw failed.error;
+      for (const result of results) {
+        assertWritten(result, "순서를 저장하지 못했어요");
+      }
     },
     onMutate: async (ordered) => {
       await queryClient.cancelQueries({ queryKey });

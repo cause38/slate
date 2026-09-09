@@ -1,11 +1,13 @@
 "use client";
 
 import type { IssuePriority, IssueStatus, IssueType } from "@/lib/constants";
+import { assertWritten } from "@/lib/queries/assert-written";
 import { issueKeys } from "@/lib/queries/issues";
 import { projectKeys } from "@/lib/queries/projects";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables, TablesUpdate } from "@/lib/supabase/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Person = Pick<Tables<"users">, "id" | "name" | "avatar_url">;
 
@@ -66,11 +68,18 @@ export function useUpdateIssue(issueKey: string) {
   return useMutation({
     mutationFn: async (patch: TablesUpdate<"issues">): Promise<void> => {
       const supabase = createClient();
-      const { error } = await supabase.from("issues").update(patch).eq("key", issueKey);
-      if (error) throw error;
+      const result = await supabase.from("issues").update(patch).eq("key", issueKey).select("id");
+      assertWritten(result, "이슈를 수정하지 못했어요");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: issueKeys.all });
+    },
+    // 메타 패널의 인라인 편집은 호출부가 8곳인데 어디도 onError 를 넘기지 않는다.
+    // 실패하면 값만 되돌아가고 이유가 안 보이므로 훅에서 한 번에 덮는다.
+    onError: (error) => {
+      toast.error("변경에 실패했어요", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     },
   });
 }
@@ -81,8 +90,8 @@ export function useDeleteIssue() {
   return useMutation({
     mutationFn: async (issueId: string): Promise<void> => {
       const supabase = createClient();
-      const { error } = await supabase.from("issues").delete().eq("id", issueId);
-      if (error) throw error;
+      const result = await supabase.from("issues").delete().eq("id", issueId).select("id");
+      assertWritten(result, "이슈를 삭제하지 못했어요");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: issueKeys.all });

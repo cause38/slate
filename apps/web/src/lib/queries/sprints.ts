@@ -1,5 +1,6 @@
 "use client";
 
+import { assertWritten } from "@/lib/queries/assert-written";
 import { issueKeys } from "@/lib/queries/issues";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
@@ -62,11 +63,13 @@ export function useStartSprint(projectId: string) {
   return useMutation({
     mutationFn: async (sprintId: string): Promise<void> => {
       const supabase = createClient();
-      const { error } = await supabase
+      const result = await supabase
         .from("sprints")
         .update({ status: "active" })
-        .eq("id", sprintId);
-      if (error) throw error;
+        .eq("id", sprintId)
+        .select("id");
+      // sprints 는 Admin 만 쓸 수 있다(rls_policies.sql:57). 멤버가 누르면 0행으로 끝난다.
+      assertWritten(result, "스프린트를 시작할 권한이 없어요");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: sprintKeys.byProject(projectId) });
