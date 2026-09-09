@@ -9,8 +9,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Realtime 구독(W3)이 무효화를 담당하므로 창 포커스 refetch는 끔
-            refetchOnWindowFocus: false,
+            // 여러 명이 같이 쓰면 남의 변경이 내 화면에 안 들어온다. 원래는 Realtime 구독이
+            // 무효화를 맡는다는 전제로 껐는데, 그 구독은 끝내 만들어지지 않았다.
+            // Realtime 은 도입하지 않기로 했으므로 탭 복귀 시 재조회로 메운다.
+            refetchOnWindowFocus: true,
             staleTime: 30_000,
           },
         },
