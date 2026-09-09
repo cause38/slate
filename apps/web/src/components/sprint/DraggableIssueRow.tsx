@@ -70,7 +70,7 @@ export function DraggableIssueRow({ issue, disabledReason }: DraggableIssueRowPr
         // 번쩍였다 사라지는 것보다, 처음부터 선택되지 않는 편이 덜 혼란스럽다.
         // 링크는 UA 기본 cursor: pointer 라 따로 덮어야 잡을 수 있다는 신호가 보인다.
         !disabled &&
-          "cursor-grab select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing",
+          "cursor-grab touch-none select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing",
         // DragOverlay 가 커서를 따라가므로 원본 행은 자리에 둔 채 흐리게만 만든다
         isDragging && "opacity-40",
       )}

@@ -35,7 +35,7 @@ export function IssueCard({ issue, overlay }: IssueCardProps) {
       // 8px 미만 이동은 드래그로 인식되지 않아 클릭으로 처리됨 → 상세 열기
       onClick={overlay ? undefined : () => router.push(`/i/${issue.key}`)}
       className={cn(
-        "cursor-grab rounded-lg border bg-card p-2.5 shadow-sm active:cursor-grabbing",
+        "cursor-grab touch-none rounded-lg border bg-card p-2.5 shadow-sm active:cursor-grabbing",
         sortable.isDragging && !overlay && "opacity-40",
         overlay && "shadow-lg",
       )}
