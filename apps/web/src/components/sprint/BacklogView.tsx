@@ -30,6 +30,7 @@ import {
   useUpdateIssueSprint,
 } from "@/lib/queries/board-issues";
 import { type Sprint, useSprints, useStartSprint } from "@/lib/queries/sprints";
+import { useIsAdmin } from "@/lib/queries/users";
 import {
   DndContext,
   type DragEndEvent,
@@ -69,6 +70,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
   const startSprint = useStartSprint(projectId);
   const updateSprint = useUpdateIssueSprint(projectId);
   const reorder = useReorderIssues(projectId);
+  // 스프린트 생성·시작·마감은 Admin 전용(PRD 2장 권한표, rls_policies.sql:57).
+  // 지금까지 버튼이 모두에게 보여서, 멤버가 눌러도 아무 일이 안 일어났다.
+  const isAdmin = useIsAdmin();
   const [completeTarget, setCompleteTarget] = useState<Sprint | null>(null);
   const [activeIssue, setActiveIssue] = useState<BoardIssue | null>(null);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -94,7 +98,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
       : "스프린트를 불러오는 중이에요"
     : hasDropTarget
       ? undefined
-      : NO_DROP_TARGET_HINT;
+      : isAdmin
+        ? NO_DROP_TARGET_HINT
+        : "관리자가 스프린트를 만들면 이슈를 옮길 수 있어요";
 
   // 표시용 그룹핑은 필터된 목록 기준
   const issuesInSprint = (sprintId: string) => filtered.filter((i) => i.sprint_id === sprintId);
@@ -204,9 +210,15 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                     이슈
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setCompleteTarget(activeSprint)}>
-                  스프린트 마감
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCompleteTarget(activeSprint)}
+                  >
+                    스프린트 마감
+                  </Button>
+                )}
               </div>
               <div className="min-h-12 divide-y">
                 {activeIssues.length ? (
@@ -242,8 +254,12 @@ export function BacklogView({ projectId }: BacklogViewProps) {
           <section className="border-b bg-card px-5 py-4 text-sm text-muted-foreground">
             진행 중인 스프린트가 없어요.
             {plannedSprints.length > 0
-              ? " 예정 스프린트를 시작하거나 새 스프린트를 만들어보세요."
-              : ` ${NO_DROP_TARGET_HINT}.`}
+              ? isAdmin
+                ? " 예정 스프린트를 시작하거나 새 스프린트를 만들어보세요."
+                : " 관리자가 예정 스프린트를 시작하면 보드가 열려요."
+              : isAdmin
+                ? ` ${NO_DROP_TARGET_HINT}.`
+                : " 관리자가 스프린트를 만들면 여기에 표시돼요."}
           </section>
         )}
 
@@ -262,14 +278,16 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                       이슈 · {sumPoints(sprintIssues)} pt
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleStart(sprint.id)}
-                    disabled={startSprint.isPending || activeSprint !== null}
-                  >
-                    시작
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleStart(sprint.id)}
+                      disabled={startSprint.isPending || activeSprint !== null}
+                    >
+                      시작
+                    </Button>
+                  )}
                 </div>
                 {sprintIssues.length > 0 && (
                   <div className="divide-y">
@@ -302,7 +320,9 @@ export function BacklogView({ projectId }: BacklogViewProps) {
                   {backlogIssues.length} 이슈 · {sumPoints(backlogIssues)} pt
                 </div>
               </div>
-              <CreateSprintDialog projectId={projectId} nextNumber={(sprints?.length ?? 0) + 1} />
+              {isAdmin && (
+                <CreateSprintDialog projectId={projectId} nextNumber={(sprints?.length ?? 0) + 1} />
+              )}
             </div>
             <InlineCreateIssue projectId={projectId} />
             <div className="divide-y">
