@@ -1,6 +1,6 @@
 import { QuickCreateButton } from "@/components/shared/QuickCreateButton";
 import { BacklogView } from "@/components/sprint/BacklogView";
-import { createClient } from "@/lib/supabase/server";
+import { findProjectByKey } from "@/lib/queries/projects-server";
 import { notFound } from "next/navigation";
 
 type BacklogPageProps = {
@@ -9,12 +9,7 @@ type BacklogPageProps = {
 
 export default async function BacklogPage({ params }: BacklogPageProps) {
   const { projectKey } = await params;
-  const supabase = await createClient();
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id, name")
-    .eq("key", projectKey)
-    .maybeSingle();
+  const project = await findProjectByKey(projectKey);
 
   if (!project) notFound();
 

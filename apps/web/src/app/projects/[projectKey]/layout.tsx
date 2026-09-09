@@ -1,6 +1,6 @@
 import { GlobalModals } from "@/components/shared/GlobalModals";
 import { Sidebar } from "@/components/shared/Sidebar";
-import { createClient } from "@/lib/supabase/server";
+import { fetchActiveProjects } from "@/lib/queries/projects-server";
 import { notFound } from "next/navigation";
 
 type ProjectLayoutProps = {
@@ -10,20 +10,13 @@ type ProjectLayoutProps = {
 
 export default async function ProjectLayout({ children, params }: ProjectLayoutProps) {
   const { projectKey } = await params;
-  const supabase = await createClient();
-
-  const { data: projects } = await supabase
-    .from("projects")
-    .select("id, key, name, color")
-    .eq("is_archived", false)
-    .order("created_at");
-
-  const current = projects?.find((p) => p.key === projectKey);
+  const projects = await fetchActiveProjects();
+  const current = projects.find((p) => p.key === projectKey);
   if (!current) notFound();
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar projects={projects ?? []} currentProjectKey={projectKey} />
+      <Sidebar projects={projects} currentProjectKey={projectKey} />
       <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       <GlobalModals />
     </div>

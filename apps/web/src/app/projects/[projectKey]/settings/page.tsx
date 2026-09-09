@@ -1,5 +1,6 @@
 import { LabelManager } from "@/components/settings/LabelManager";
 import { ProjectGeneralForm } from "@/components/settings/ProjectGeneralForm";
+import { findProjectByKey } from "@/lib/queries/projects-server";
 import { isCurrentUserAdmin } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -13,12 +14,8 @@ export default async function ProjectSettingsPage({ params }: ProjectSettingsPag
   const { projectKey } = await params;
   const supabase = await createClient();
 
-  const [{ data: project }, isAdmin] = await Promise.all([
-    supabase
-      .from("projects")
-      .select("id, key, name, color, is_archived")
-      .eq("key", projectKey)
-      .maybeSingle(),
+  const [project, isAdmin] = await Promise.all([
+    findProjectByKey(projectKey),
     isCurrentUserAdmin(supabase),
   ]);
 

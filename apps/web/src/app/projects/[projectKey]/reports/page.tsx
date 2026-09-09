@@ -1,6 +1,6 @@
 import { ReportsView } from "@/components/report/ReportsView";
 import { QuickCreateButton } from "@/components/shared/QuickCreateButton";
-import { createClient } from "@/lib/supabase/server";
+import { findProjectByKey } from "@/lib/queries/projects-server";
 import { notFound } from "next/navigation";
 
 type ReportsPageProps = {
@@ -9,12 +9,7 @@ type ReportsPageProps = {
 
 export default async function ReportsPage({ params }: ReportsPageProps) {
   const { projectKey } = await params;
-  const supabase = await createClient();
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id, key")
-    .eq("key", projectKey)
-    .maybeSingle();
+  const project = await findProjectByKey(projectKey);
 
   if (!project) notFound();
 
