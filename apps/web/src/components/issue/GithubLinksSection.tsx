@@ -21,9 +21,22 @@ const PR_STATE_CLASSES: Record<GithubPrState, string> = {
 const SHORT_SHA_LENGTH = 7;
 
 export function GithubLinksSection({ issueId }: GithubLinksSectionProps) {
-  const { data: links } = useGithubLinks(issueId);
-  // 자동 생성 콘텐츠 — 연결된 항목이 없으면 섹션 자체를 숨긴다
-  if (!links?.length) return null;
+  const { data: links, isPending } = useGithubLinks(issueId);
+
+  // 연결이 0건일 때 섹션을 통째로 숨기면 "기능이 없는 것"과 구분되지 않는다.
+  // 웹훅이 붙으면 여기가 자동으로 채워진다는 사실을 드러낸다.
+  if (isPending) return null;
+
+  if (!links?.length) {
+    return (
+      <section className="mb-6 rounded-lg border bg-card p-4">
+        <div className="mb-1 text-sm font-medium">GitHub</div>
+        <p className="text-xs text-muted-foreground">
+          연결된 PR·커밋이 없어요. 커밋 메시지나 PR 제목에 이슈 키를 넣으면 여기에 자동으로 모여요.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="mb-6 rounded-lg border bg-card p-4">
