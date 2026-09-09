@@ -11,7 +11,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useCommandKShortcut } from "@/hooks/useCommandKShortcut";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIssueSearch } from "@/lib/queries/issue-search";
 import { useUiStore } from "@/lib/stores/ui";
@@ -25,12 +24,9 @@ export function GlobalSearchModal() {
   const router = useRouter();
   const open = useUiStore((state) => state.searchOpen);
   const setSearchOpen = useUiStore((state) => state.setSearchOpen);
-  const toggleSearch = useUiStore((state) => state.toggleSearch);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, SEARCH_DEBOUNCE_MS);
   const { data: results, isFetching } = useIssueSearch(debouncedQuery);
-
-  useCommandKShortcut(toggleSearch);
 
   const handleOpenChange = useCallback(
     (next: boolean) => {

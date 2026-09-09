@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGlobalShortcut } from "@/hooks/useGlobalShortcut";
 import { useUiStore } from "@/lib/stores/ui";
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
@@ -19,10 +18,6 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 export function ShortcutsHelpDialog() {
   const open = useUiStore((state) => state.helpOpen);
   const setHelpOpen = useUiStore((state) => state.setHelpOpen);
-  const toggleHelp = useUiStore((state) => state.toggleHelp);
-
-  // ?(Shift+/)로 토글 — useGlobalShortcut이 입력 필드 안에서는 무시
-  useGlobalShortcut("?", toggleHelp);
 
   return (
     <Dialog open={open} onOpenChange={setHelpOpen}>

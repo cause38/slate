@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useGlobalShortcut } from "@/hooks/useGlobalShortcut";
 import {
   ISSUE_PRIORITIES,
   ISSUE_PRIORITY_LABELS,
@@ -46,15 +45,13 @@ const quickCreateSchema = z.object({
 type QuickCreateForm = z.infer<typeof quickCreateSchema>;
 
 export function QuickCreateModal() {
-  const { quickCreateOpen, setQuickCreateOpen, openQuickCreate } = useUiStore();
+  const { quickCreateOpen, setQuickCreateOpen } = useUiStore();
   const params = useParams<{ projectKey?: string }>();
   const { data: projects } = useProjects();
   const { data: users } = useUsers();
   const { data: currentUserId } = useCurrentUserId();
   const createIssue = useCreateIssue();
   const titleRef = useRef<HTMLInputElement>(null);
-
-  useGlobalShortcut("c", openQuickCreate);
 
   const currentProject = projects?.find((p) => p.key === params.projectKey);
   const defaultProjectId = currentProject?.id ?? projects?.[0]?.id ?? "";
