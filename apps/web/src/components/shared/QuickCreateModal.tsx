@@ -26,7 +26,7 @@ import { useUiStore } from "@/lib/stores/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, type FieldErrors, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -56,18 +56,19 @@ export function QuickCreateModal() {
   const currentProject = projects?.find((p) => p.key === params.projectKey);
   const defaultProjectId = currentProject?.id ?? projects?.[0]?.id ?? "";
 
-  const { control, register, handleSubmit, reset, formState } = useForm<QuickCreateForm>({
-    resolver: zodResolver(quickCreateSchema),
-    defaultValues: {
-      projectId: defaultProjectId,
-      title: "",
-      body: "",
-      type: "task",
-      priority: "medium",
-      assigneeId: currentUserId ?? NONE_VALUE,
-      storyPoints: NONE_VALUE,
-    },
-  });
+  const { control, register, handleSubmit, reset, setValue, getValues, formState } =
+    useForm<QuickCreateForm>({
+      resolver: zodResolver(quickCreateSchema),
+      defaultValues: {
+        projectId: defaultProjectId,
+        title: "",
+        body: "",
+        type: "task",
+        priority: "medium",
+        assigneeId: currentUserId ?? NONE_VALUE,
+        storyPoints: NONE_VALUE,
+      },
+    });
 
   // 모달이 열리는 순간에만 최신 디폴트로 초기화한다.
   // 열려 있는 동안 재초기화하면 사용자가 바꾼 프로젝트/담당자 선택을 덮어쓴다.
@@ -86,6 +87,19 @@ export function QuickCreateModal() {
     }
     wasOpen.current = quickCreateOpen;
   }, [quickCreateOpen, defaultProjectId, currentUserId, reset]);
+
+  // 이 모달은 열릴 때 마운트되므로 프로젝트·사용자 조회가 그 시점에 시작된다. 위 초기화는
+  // 마운트 때 한 번만 도는데, 그때는 아직 응답이 없어 projectId 가 빈 값으로 굳는다.
+  // 그러면 제출이 zod 에서 조용히 막혀 "생성이 안 된다"가 된다. 아직 비어 있을 때만 채운다.
+  useEffect(() => {
+    if (!quickCreateOpen) return;
+    if (defaultProjectId && !getValues("projectId")) {
+      setValue("projectId", defaultProjectId);
+    }
+    if (currentUserId && getValues("assigneeId") === NONE_VALUE) {
+      setValue("assigneeId", currentUserId);
+    }
+  }, [quickCreateOpen, defaultProjectId, currentUserId, getValues, setValue]);
 
   function buildPayload(values: QuickCreateForm) {
     if (!currentUserId) throw new Error("로그인 정보를 확인할 수 없어요");
@@ -126,8 +140,17 @@ export function QuickCreateModal() {
     }
   }
 
-  const submitAndClose = handleSubmit((values) => submit(values, false));
-  const submitAndContinue = handleSubmit((values) => submit(values, true));
+  // 제목 오류는 필드 아래에 뜨지만 projectId 같은 숨은 필드가 비면 화면에 아무 표시가 없다.
+  // 그러면 버튼을 눌러도 조용히 아무 일이 안 일어나 "생성이 안 된다"로 보인다.
+  function reportInvalid(errors: FieldErrors<QuickCreateForm>) {
+    if (errors.title) return; // 필드 아래 메시지로 이미 보인다
+    toast.error("이슈를 만들 수 없어요", {
+      description: errors.projectId ? "프로젝트를 선택해 주세요" : "입력값을 확인해 주세요",
+    });
+  }
+
+  const submitAndClose = handleSubmit((values) => submit(values, false), reportInvalid);
+  const submitAndContinue = handleSubmit((values) => submit(values, true), reportInvalid);
 
   const { ref: titleFieldRef, ...titleField } = register("title");
 
